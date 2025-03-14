@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { PackageModule } from './package/package.module';
+import { PromoModule } from './promo/promo.module';
 
 @Module({
-    imports: [PackageModule],
+    imports: [PackageModule, PromoModule],
     controllers: [],
     providers: [],
 })

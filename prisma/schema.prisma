@@ -37,6 +37,7 @@ model User {
   appleId               String?
   userCreationMethod    UserCreationMethodEnum @default(EMAIL)
   verificationEmailedAt DateTime?              @default(now())
+  ownedGameCount        Int                    @default(1)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
