@@ -12,7 +12,7 @@ export class EmailService {
     private from: string;
 
     constructor(private readonly configService: ConfigService) {
-        this.from = `Hola Academy <${configService.get('EMAIL')}>`;
+        this.from = `QA Game <${configService.get('EMAIL')}>`;
     }
 
     newTransport() {
