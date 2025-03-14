@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: nest-app-hola
+    container_name: nest-app-game
     environment:
       - NODE_OPTIONS=--max-old-space-size=2048
     ports:
@@ -16,11 +16,11 @@ services:
   #
   db:
     image: postgres:17.2 # Use PostgreSQL v17.2
-    container_name: postgres-db-hola
+    container_name: postgres-db-game
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: memo
-      POSTGRES_DB: hola
+      POSTGRES_DB: game
     ports:
       - "5400:5432" # Map container's port 5432 to your machine
     volumes:
