@@ -1,0 +1,302 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+
+  name     String
+  email    String @unique
+  username String @unique
+
+  password              String?
+  phoneNumber           String?                @unique
+  role                  RoleEnum               @default(USER)
+  isDeleted             Boolean                @default(false)
+  otp                   String?
+  dateToExpireOtp       DateTime?
+  qrCode                String                 @unique @default(uuid())
+  verified              Boolean                @default(false)
+  nationality           String?
+  address               String?
+  profileImageId        Int?                   @unique
+  dob                   DateTime?
+  gender                GenderEnum?
+  googleId              String?
+  appleId               String?
+  userCreationMethod    UserCreationMethodEnum @default(EMAIL)
+  verificationEmailedAt DateTime?              @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ProfileImage File?       @relation(fields: [profileImageId], references: [id], onDelete: Cascade)
+  Game         Game[]
+  Order        Order[]
+  PromoUser    PromoUser[]
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+
+  name        String  @unique
+  imageId     Int     @unique
+  description String?
+
+  isDeleted        Boolean @default(false)
+  parentCategoryId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ParentCategory Category?      @relation("ParentCategory", fields: [parentCategoryId], references: [id])
+  Category       Category[]     @relation("ParentCategory")
+  Image          File           @relation(fields: [imageId], references: [id], onDelete: Cascade)
+  Question       Question[]
+  GameCategory   GameCategory[]
+}
+
+model Question {
+  id Int @id @default(autoincrement())
+
+  question       String
+  questionFileId Int?
+  categoryId     Int
+  answer         String
+  answerFileId   Int?
+  score          Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  QuestionFile File?          @relation(fields: [questionFileId], references: [id], onDelete: Cascade, name: "QuestionFile")
+  AnswerFile   File?          @relation(fields: [answerFileId], references: [id], onDelete: Cascade, name: "AnswerFile")
+  Category     Category       @relation(fields: [categoryId], references: [id])
+  GameQuestion GameQuestion[]
+}
+
+model Game {
+  id Int @id @default(autoincrement())
+
+  name        String
+  playerTurn  Int            @default(0)
+  userId      Int
+  rePlayCount Int            @default(0)
+  status      GameStatusEnum @default(PLAYING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  User         User           @relation(fields: [userId], references: [id])
+  Team         Team[]
+  GameCategory GameCategory[]
+  GameQuestion GameQuestion[]
+}
+
+model GameCategory {
+  id Int @id @default(autoincrement())
+
+  gameId     Int
+  categoryId Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Game         Game           @relation(fields: [gameId], references: [id])
+  Category     Category       @relation(fields: [categoryId], references: [id])
+  GameQuestion GameQuestion[]
+}
+
+model GameQuestion {
+  id Int @id @default(autoincrement())
+
+  gameId         Int
+  questionId     Int
+  gameCategoryId Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Game         Game         @relation(fields: [gameId], references: [id])
+  Question     Question     @relation(fields: [questionId], references: [id])
+  GameCategory GameCategory @relation(fields: [gameCategoryId], references: [id])
+}
+
+model Team {
+  id Int @id @default(autoincrement())
+
+  name            String
+  score           Int
+  gameId          Int
+  playerCount     Int
+  usedLuckWheel   Boolean @default(false)
+  usedAnswerAgain Boolean @default(false)
+  usedCallFriend  Boolean @default(false)
+  order           Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Game      Game     @relation(fields: [gameId], references: [id])
+
+  @@unique([gameId, order])
+  @@unique([gameId, name])
+}
+
+model Package {
+  id Int @id @default(autoincrement())
+
+  name        String
+  description String?
+  price       Float
+  quantity    Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Order     Order[]
+  Promo     Promo[]
+}
+
+model Order {
+  id Int @id @default(autoincrement())
+
+  userId     Int
+  packageId  Int
+  totalPrice Float
+  finalPrice Float
+  promoId    Int?
+
+  status OrderStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  User    User    @relation(fields: [userId], references: [id])
+  Package Package @relation(fields: [packageId], references: [id])
+  Promo   Promo?  @relation(fields: [promoId], references: [id])
+}
+
+model Promo {
+  id Int @id @default(autoincrement())
+
+  code String @unique
+
+  discount             Int
+  maxUsage             Int
+  endDate              DateTime
+  maxAmountForDiscount Int
+
+  type         PromoType    @default(public)
+  userLimit    Int?         @default(1)
+  packageId    Int?
+  active       Boolean      @default(true)
+  startDate    DateTime     @default(now())
+  discountUnit DiscountUnit @default(PERCENTAGE)
+  usedCount    Int          @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  PromoUser PromoUser[]
+  Package   Package?    @relation(fields: [packageId], references: [id])
+  Order     Order[]
+}
+
+model PromoUser {
+  userId  Int
+  promoId Int
+
+  usageCount Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  User  User  @relation(fields: [userId], references: [id])
+  Promo Promo @relation(fields: [promoId], references: [id])
+
+  @@id([userId, promoId])
+}
+
+model Contact {
+  id Int @id @default(autoincrement())
+
+  name        String
+  email       String
+  phoneNumber String
+  message     String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model File {
+  id Int @id @default(autoincrement())
+
+  name String
+  path String       @unique
+  type FileTypeEnum
+  size Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  User         User?      @relation
+  Category     Category?
+  QuestionFile Question[] @relation("QuestionFile")
+  AnswerFile   Question[] @relation("AnswerFile")
+}
+
+enum FileTypeEnum {
+  IMAGE
+  VIDEO
+  DOCUMENT
+}
+
+enum GenderEnum {
+  MALE
+  FEMALE
+}
+
+enum RoleEnum {
+  USER
+  MANAGER
+  ADMIN
+}
+
+enum UserCreationMethodEnum {
+  EMAIL
+  GOOGLE
+  APPLE
+  MANUAL
+}
+
+enum GameStatusEnum {
+  PLAYING
+  FINISHED
+}
+
+enum OrderStatus {
+  PENDING
+  CANCELLED
+  COMPLETED
+}
+
+enum PromoType {
+  package
+  public
+}
+
+enum DiscountUnit {
+  PERCENTAGE
+  MONEY
+}
