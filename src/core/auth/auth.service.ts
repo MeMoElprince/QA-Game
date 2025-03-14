@@ -38,7 +38,6 @@ import { UserHelper } from '../user/helpers/user.helper';
 export class AuthService {
     constructor(
         private readonly config: ConfigService,
-        private readonly userService: UserService,
         private readonly emailService: EmailService,
         private readonly prismaService: PrismaService,
         private readonly otpService: OtpService,

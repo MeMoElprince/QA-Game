@@ -50,7 +50,7 @@ export class LoginDto {
     fcmToken?: string;
 }
 
-export class SignupDto extends OmitType(CreateUserDto, ['role']) {}
+export class SignupDto extends OmitType(CreateUserDto, ['role', 'picture']) {}
 
 export class ResetPasswordDto {
     @ApiProperty({

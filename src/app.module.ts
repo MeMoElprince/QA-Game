@@ -9,6 +9,8 @@ import { UPLOAD_PATH } from './common/constants/path.constant';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ScheduleModule } from '@nestjs/schedule';
 import { UserRepo } from './core/user/repo/user.repo';
+import { CommerceModule } from './commerce/commerce.module';
+import { SupportModule } from './support/support.module';
 
 @Module({
     imports: [
@@ -25,6 +27,8 @@ import { UserRepo } from './core/user/repo/user.repo';
         EmailModule,
         OtpModule,
         SystemModule,
+        CommerceModule,
+        SupportModule,
     ],
     controllers: [],
     providers: [UserRepo],

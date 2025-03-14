@@ -60,9 +60,6 @@ export class CategoryService {
         const categories = await this.prismaService.category.findMany({
             take: limit,
             skip,
-            include: {
-                Image: true,
-            },
         });
         const total = await this.prismaService.category.count();
         return {
