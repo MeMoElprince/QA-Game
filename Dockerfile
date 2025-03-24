@@ -15,7 +15,7 @@ RUN npm ci --force
 COPY . .
 # Generate Prisma client
 RUN npx prisma generate
-# Expose port 3000 (default port for NestJS apps)
-EXPOSE 3000
+# Expose port 4444 
+EXPOSE 4444
 # Command to start the application
 CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]
