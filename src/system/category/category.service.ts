@@ -31,7 +31,6 @@ export class CategoryService {
                         path: join('categories', `${image.filename}`),
                         name: image.filename,
                         size: image.size,
-                        // TODO get mime type from buffer
                         type: getFileCategoryFromMimetype(
                             mimeType.lookup(image.originalname),
                         ),

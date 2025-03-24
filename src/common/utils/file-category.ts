@@ -1,7 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
 import { FileTypeEnum } from '@prisma/client';
 
-export function getFileCategoryFromMimetype(mimetype: string): FileTypeEnum {
+export function getFileCategoryFromMimetype(mimetype: string | false): FileTypeEnum {
     const fileType = mimetype;
     if (!fileType) {
         throw new BadRequestException('Invalid file type');

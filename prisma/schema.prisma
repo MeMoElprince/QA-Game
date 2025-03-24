@@ -72,10 +72,10 @@ model Question {
   id Int @id @default(autoincrement())
 
   question       String
-  questionFileId Int?
+  questionFileId Int?   @unique
   categoryId     Int
   answer         String
-  answerFileId   Int?
+  answerFileId   Int?   @unique
   score          Int
 
   createdAt DateTime @default(now())
@@ -138,9 +138,9 @@ model Team {
   id Int @id @default(autoincrement())
 
   name            String
-  score           Int
   gameId          Int
   playerCount     Int
+  score           Int     @default(0)
   usedLuckWheel   Boolean @default(false)
   usedAnswerAgain Boolean @default(false)
   usedCallFriend  Boolean @default(false)
@@ -251,10 +251,10 @@ model File {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  User         User?      @relation
+  User         User?     @relation
   Category     Category?
-  QuestionFile Question[] @relation("QuestionFile")
-  AnswerFile   Question[] @relation("AnswerFile")
+  QuestionFile Question? @relation("QuestionFile")
+  AnswerFile   Question? @relation("AnswerFile")
 }
 
 enum FileTypeEnum {
