@@ -63,7 +63,7 @@ export class QuestionController {
                     cb(null, `${UPLOAD_PATH}/${folder}/tmp`);
                 },
                 filename: (req, file, cb) => {
-                    cb(null, `${Date.now()}-${file.originalname}`);
+                    cb(null, `${Date.now()}-${file.originalname.replace(/\s/g, '-')}`);
                 },
             }),
         }),
@@ -129,7 +129,7 @@ export class QuestionController {
                     cb(null, `${UPLOAD_PATH}/${folder}/tmp`);
                 },
                 filename: (req, file, cb) => {
-                    cb(null, `${Date.now()}-${file.originalname}`);
+                    cb(null, `${Date.now()}-${file.originalname.replace(/\s/g, '-')}`);
                 },
             }),
         }),
