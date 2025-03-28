@@ -92,4 +92,13 @@ export class UserRepo {
             data,
         });
     }
+
+    async createUserByRole(
+        data: Prisma.UserCreateInput,
+        prisma: PrismaService = this.prismaService,
+    ) {
+        return prisma.user.create({
+            data,
+        });
+    }
 }

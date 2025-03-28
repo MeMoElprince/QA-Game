@@ -21,10 +21,16 @@ import {
     UpdateUserDto,
 } from './dto/user.dto';
 import { hash } from 'argon2';
+import { UserRepo } from './repo/user.repo';
+import { UserHelper } from './helpers/user.helper';
 
 @Injectable()
 export class UserService {
-    constructor(private prismaService: PrismaService) {}
+    constructor(
+        private prismaService: PrismaService,
+        private readonly userRepo: UserRepo,
+        private readonly userHelper: UserHelper,
+    ) {}
 
     async updateMyData(id: number, data: UpdateUserDataDto) {
         console.log({ id, data });
@@ -187,12 +193,11 @@ export class UserService {
             throw new ForbiddenException(
                 'Admin can only be created by the system!',
             );
-        const newUser = await this.prismaService.user.create({
-            data: {
-                username: 'test', // TODO
-                ...createUserDto,
-                userCreationMethod: UserCreationMethod.MANUAL,
-            },
+        const username = await this.userHelper.suggestUsername(createUserDto.name);
+        const newUser = await this.userRepo.createUserByRole({
+            ...createUserDto,
+            username,
+            userCreationMethod: UserCreationMethod.MANUAL,
         });
         return newUser;
     }
