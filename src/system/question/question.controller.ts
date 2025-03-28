@@ -31,6 +31,7 @@ import { RoleEnum } from '@prisma/client';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { UPLOAD_PATH } from 'src/common/constants/path.constant';
+import { existsSync, mkdirSync } from 'fs';
 
 @ApiTags('Question')
 @Controller('questions')
@@ -60,10 +61,16 @@ export class QuestionController {
                         file.fieldname === 'questionFile'
                             ? 'questions'
                             : 'answers';
-                    cb(null, `${UPLOAD_PATH}/${folder}/tmp`);
+                    const dirPath = `${UPLOAD_PATH}/${folder}/tmp`;
+                    if (!existsSync(dirPath))
+                        mkdirSync(dirPath, { recursive: true });
+                    cb(null, dirPath);
                 },
                 filename: (req, file, cb) => {
-                    cb(null, `${Date.now()}-${file.originalname.replace(/\s/g, '-')}`);
+                    cb(
+                        null,
+                        `${Date.now()}-${file.originalname.replace(/\s/g, '-')}`,
+                    );
                 },
             }),
         }),
@@ -126,10 +133,16 @@ export class QuestionController {
                         file.fieldname === 'questionFile'
                             ? 'questions'
                             : 'answers';
-                    cb(null, `${UPLOAD_PATH}/${folder}/tmp`);
+                    const dirPath = `${UPLOAD_PATH}/${folder}/tmp`;
+                    if (!existsSync(dirPath))
+                        mkdirSync(dirPath, { recursive: true });
+                    cb(null, dirPath);
                 },
                 filename: (req, file, cb) => {
-                    cb(null, `${Date.now()}-${file.originalname.replace(/\s/g, '-')}`);
+                    cb(
+                        null,
+                        `${Date.now()}-${file.originalname.replace(/\s/g, '-')}`,
+                    );
                 },
             }),
         }),
