@@ -53,6 +53,51 @@ export class CreateGameDto implements CreateGameInterface {
     categoriesId: number[];
 }
 
+export class AdminCreateGameDto extends CreateGameDto {
+    @ApiProperty({
+        description: 'Game user id',
+        required: true,
+    })
+    @IsNotEmpty()
+    @IsInt()
+    @Type(() => Number)
+    userId: number;
+
+    @ApiProperty({
+        description: 'Game name',
+        required: true,
+    })
+    @IsNotEmpty()
+    @IsString()
+    name: string;
+
+    @ApiProperty({
+        description: 'Game Teams',
+        required: true,
+        type: [CreateTeamDto],
+    })
+    @IsNotEmpty()
+    @Type(() => CreateGameDto)
+    @ArrayMinSize(2)
+    @ArrayMaxSize(2)
+    teams: CreateTeamDto[];
+
+    @ApiProperty({
+        description: 'Game categories',
+        required: true,
+        type: [Number],
+    })
+    @IsNotEmpty()
+    @Type(() => Number)
+    @ArrayMinSize(6, {
+        message: 'You must select 6 categories for the game',
+    })
+    @ArrayMaxSize(6, {
+        message: 'You must select 6 categories for the game',
+    })
+    categoriesId: number[];
+}
+
 export class GameQueryDto
     extends PaginationDto
     implements Pick<Partial<GameInterface>, 'name' | 'status' | 'userId'>

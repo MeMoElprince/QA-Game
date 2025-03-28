@@ -10,11 +10,18 @@ import {
     Query,
 } from '@nestjs/common';
 import { GameService } from './game.service';
-import { CreateGameDto, GameQueryDto, UpdateGameDto } from './dto/game.dto';
+import {
+    AdminCreateGameDto,
+    CreateGameDto,
+    GameQueryDto,
+    UpdateGameDto,
+} from './dto/game.dto';
 import { GetUser } from 'src/core/auth/decorator/get-user.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { User } from '@prisma/client';
+import { RoleEnum, User } from '@prisma/client';
+import { Roles } from 'src/core/auth/decorator/roles.decorator';
+import { RolesGuard } from 'src/core/auth/guard/roles.guard';
 
 @ApiTags('Game')
 @Controller('games')
@@ -33,6 +40,18 @@ export class GameController {
         @GetUser('id') userId: number,
     ) {
         return this.gameService.create(+userId, createGameDto);
+    }
+
+    @Post()
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles(RoleEnum.ADMIN)
+    @ApiOperation({
+        summary: 'Create a free new game for ADMIN',
+        description: 'Create a new free game for ADMIN',
+    })
+    @ApiBearerAuth('default')
+    createFreeGame(@Body() createGameDto: AdminCreateGameDto) {
+        return this.gameService.createFreeGame(createGameDto);
     }
 
     @Get()
