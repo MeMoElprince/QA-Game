@@ -42,7 +42,7 @@ export class GameController {
         return this.gameService.create(+userId, createGameDto);
     }
 
-    @Post()
+    @Post('free/admin')
     @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles(RoleEnum.ADMIN)
     @ApiOperation({

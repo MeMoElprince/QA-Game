@@ -32,7 +32,7 @@ export class CreateGameDto implements CreateGameInterface {
         type: [CreateTeamDto],
     })
     @IsNotEmpty()
-    @Type(() => CreateGameDto)
+    @Type(() => CreateTeamDto)
     @ArrayMinSize(2)
     @ArrayMaxSize(2)
     teams: CreateTeamDto[];
@@ -62,40 +62,6 @@ export class AdminCreateGameDto extends CreateGameDto {
     @IsInt()
     @Type(() => Number)
     userId: number;
-
-    @ApiProperty({
-        description: 'Game name',
-        required: true,
-    })
-    @IsNotEmpty()
-    @IsString()
-    name: string;
-
-    @ApiProperty({
-        description: 'Game Teams',
-        required: true,
-        type: [CreateTeamDto],
-    })
-    @IsNotEmpty()
-    @Type(() => CreateGameDto)
-    @ArrayMinSize(2)
-    @ArrayMaxSize(2)
-    teams: CreateTeamDto[];
-
-    @ApiProperty({
-        description: 'Game categories',
-        required: true,
-        type: [Number],
-    })
-    @IsNotEmpty()
-    @Type(() => Number)
-    @ArrayMinSize(6, {
-        message: 'You must select 6 categories for the game',
-    })
-    @ArrayMaxSize(6, {
-        message: 'You must select 6 categories for the game',
-    })
-    categoriesId: number[];
 }
 
 export class GameQueryDto

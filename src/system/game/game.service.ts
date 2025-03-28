@@ -157,6 +157,7 @@ export class GameService {
             },
         });
         if (!user) throw new BadRequestException('User not found');
+        console.log({ user });
         const newGame = await this.prismaService.$transaction(
             async (prisma) => {
                 const categories = await prisma.category.findMany({
