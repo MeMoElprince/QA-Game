@@ -298,11 +298,7 @@ export class GameService {
             take,
             skip,
             include: {
-                GameCategory: {
-                    select: {
-                        categoryId: true,
-                    },
-                },
+                GameCategory: true,
                 Team: {
                     select: {
                         id: true,
