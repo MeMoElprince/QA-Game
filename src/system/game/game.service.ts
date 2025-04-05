@@ -304,7 +304,21 @@ export class GameService {
             include: {
                 GameCategory: {
                     include: {
-                        Category: true,
+                        Category: {
+                            include: {
+                                Image: true,
+                            },
+                        },
+                        GameQuestion: {
+                            include: {
+                                Question: {
+                                    include: {
+                                        QuestionFile: true,
+                                        AnswerFile: true,
+                                    },
+                                },
+                            },
+                        },
                     },
                 },
                 Team: {
