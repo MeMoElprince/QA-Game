@@ -266,6 +266,25 @@ export class GameService {
         return newGame;
     }
 
+    async increaseUserGameCount(count: number, userId: number) {
+        const user = await this.prismaService.user.findUnique({
+            where: {
+                id: userId,
+            },
+        });
+        if (!user) throw new BadRequestException('User not found');
+        return this.prismaService.user.update({
+            where: {
+                id: userId,
+            },
+            data: {
+                ownedGameCount: {
+                    increment: count,
+                },
+            },
+        });
+    }
+
     async findAll(user: User, gameQueryDto: GameQueryDto) {
         const { page = 1, limit = 20, ...filter } = gameQueryDto;
         const take = Math.min(limit, 20);

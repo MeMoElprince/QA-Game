@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { ContactService } from './contact.service';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -28,6 +28,7 @@ export class ContactController {
     })
     @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles(RoleEnum.ADMIN)
+    @ApiBearerAuth('default')
     @Get()
     async getAll(@Query() paginationDto: PaginationDto) {
         return this.contactService.findAll(paginationDto);

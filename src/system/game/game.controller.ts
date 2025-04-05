@@ -74,4 +74,19 @@ export class GameController {
     remove(@Param('id') id: string) {
         return this.gameService.remove(+id);
     }
+
+    @Patch(':counter/users/:userId')
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles(RoleEnum.ADMIN)
+    @ApiOperation({
+        summary: 'Increase game count',
+        description: 'Increase game count',
+    })
+    @ApiBearerAuth('default')
+    increaseCounter(
+        @Param('userId') userId: string,
+        @Param('counter') counter: string,
+    ) {
+        return this.gameService.increaseUserGameCount(+counter, +userId);
+    }
 }
