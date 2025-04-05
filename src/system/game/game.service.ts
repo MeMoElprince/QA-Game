@@ -321,14 +321,7 @@ export class GameService {
                         },
                     },
                 },
-                Team: {
-                    select: {
-                        id: true,
-                        name: true,
-                        playerCount: true,
-                        score: true,
-                    },
-                },
+                Team: true,
             },
         });
         const total = await this.prismaService.game.count({
