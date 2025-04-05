@@ -286,11 +286,15 @@ export class GameService {
     }
 
     async findAll(user: User, gameQueryDto: GameQueryDto) {
-        const { page = 1, limit = 20, ...filter } = gameQueryDto;
+        const { page = 1, limit = 20, name, ...filter } = gameQueryDto;
         const take = Math.min(limit, 20);
         const skip = (page - 1) * take;
         const where: Prisma.GameWhereInput = filter;
-
+        if (name)
+            where.name = {
+                contains: name,
+                mode: 'insensitive',
+            };
         if (user.role !== RoleEnum.ADMIN) where.userId = user.id;
 
         const games = await this.prismaService.game.findMany({
