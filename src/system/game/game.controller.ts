@@ -18,7 +18,12 @@ import {
 } from './dto/game.dto';
 import { GetUser } from 'src/core/auth/decorator/get-user.decorator';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiOperation,
+    ApiQuery,
+    ApiTags,
+} from '@nestjs/swagger';
 import { RoleEnum, User } from '@prisma/client';
 import { Roles } from 'src/core/auth/decorator/roles.decorator';
 import { RolesGuard } from 'src/core/auth/guard/roles.guard';
@@ -88,5 +93,36 @@ export class GameController {
         @Param('counter') counter: string,
     ) {
         return this.gameService.increaseUserGameCount(+counter, +userId);
+    }
+
+    @Patch(':gameId/game-question/:gameQuestionId')
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles(RoleEnum.ADMIN)
+    @ApiOperation({
+        summary: 'mark question for team as answered to increase his score',
+        description: 'if no team answered send no query of teamId',
+    })
+    @ApiBearerAuth('default')
+    @ApiQuery({
+        name: 'teamId',
+        required: false,
+        description: 'teamId of the team that answered the question',
+        schema: {
+            type: 'string',
+        },
+        type: String,
+    })
+    markGameQuestionMarkedForTeam(
+        @Param('gameId') gameId: string,
+        @Param('gameQuestionId') gameQuestionId: string,
+        @Query('teamId') teamId: string,
+        @GetUser('id') userId: number,
+    ) {
+        return this.gameService.markGameQuestionMarkedForTeam(
+            +userId,
+            +gameId,
+            +gameQuestionId,
+            teamId ? +teamId : undefined,
+        );
     }
 }

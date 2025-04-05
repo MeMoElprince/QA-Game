@@ -1,6 +1,7 @@
 import {
     BadRequestException,
     ConflictException,
+    ForbiddenException,
     Injectable,
 } from '@nestjs/common';
 import {
@@ -339,5 +340,62 @@ export class GameService {
 
     async remove(id: number) {
         return `This action removes a #${id} game`;
+    }
+
+    async markGameQuestionMarkedForTeam(
+        userId: number,
+        gameId: number,
+        gameQuestionId: number,
+        teamId: number,
+    ) {
+        const game = await this.prismaService.game.findUnique({
+            where: {
+                id: gameId,
+            },
+        });
+        if (!game) throw new BadRequestException('Game not found');
+        if (game.userId !== userId)
+            throw new ForbiddenException(
+                'You are not allowed to update this game',
+            );
+        const gameQuestion = await this.prismaService.gameQuestion.findUnique({
+            where: {
+                id: gameQuestionId,
+                gameId,
+            },
+            select: {
+                Question: true,
+            },
+        });
+
+        if (!gameQuestion)
+            throw new BadRequestException(
+                'Game question not found or not in game',
+            );
+
+        return await this.prismaService.$transaction(async (prisma) => {
+            if (teamId)
+                await prisma.team.update({
+                    where: {
+                        id: teamId,
+                        gameId,
+                    },
+                    data: {
+                        score: {
+                            increment: gameQuestion.Question.score,
+                        },
+                    },
+                });
+            return await prisma.gameQuestion.update({
+                where: {
+                    id: gameQuestionId,
+                    gameId,
+                },
+                data: {
+                    answered: true,
+                    teamId,
+                },
+            });
+        });
     }
 }
