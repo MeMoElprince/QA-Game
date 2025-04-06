@@ -11,9 +11,11 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { UserRepo } from './core/user/repo/user.repo';
 import { CommerceModule } from './commerce/commerce.module';
 import { SupportModule } from './support/support.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
     imports: [
+        PaymentModule,
         ScheduleModule.forRoot(),
         ServeStaticModule.forRoot({
             rootPath: UPLOAD_PATH,
