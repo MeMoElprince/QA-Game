@@ -96,8 +96,7 @@ export class GameController {
     }
 
     @Patch(':gameId/game-question/:gameQuestionId')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
-    @Roles(RoleEnum.ADMIN)
+    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({
         summary: 'mark question for team as answered to increase his score',
         description: 'if no team answered send no query of teamId',
