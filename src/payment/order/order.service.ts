@@ -118,6 +118,11 @@ export class OrderService {
             where,
             take,
             skip,
+            include: {
+                Package: true,
+                Promo: true,
+                User: true,
+            },
         });
         return orders;
     }
