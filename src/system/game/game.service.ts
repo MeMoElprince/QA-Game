@@ -8,6 +8,7 @@ import {
     AdminCreateGameDto,
     CreateGameDto,
     GameQueryDto,
+    MarkHelperAsUsedDto,
     UpdateGameDto,
 } from './dto/game.dto';
 import { PrismaService } from 'src/common/modules/prisma/prisma.service';
@@ -396,6 +397,40 @@ export class GameService {
                     teamId,
                 },
             });
+        });
+    }
+
+    async markHelperAsUsed(
+        userId: number,
+        markHelperAsUsedDto: MarkHelperAsUsedDto,
+    ) {
+        const game = await this.prismaService.game.findUnique({
+            where: {
+                id: markHelperAsUsedDto.gameId,
+            },
+            include: {
+                Team: true,
+            },
+        });
+        if (!game) throw new BadRequestException('Game not found');
+        if (game.userId !== userId)
+            throw new ForbiddenException(
+                'You are not allowed to update this game',
+            );
+        const team = game.Team.find(
+            (team) => team.id === markHelperAsUsedDto.teamId,
+        );
+        if (!team) throw new BadRequestException('Team not found in game');
+        console.log({ team, markHelperAsUsedDto, userId });
+        return await this.prismaService.team.update({
+            where: {
+                id: team.id,
+            },
+            data: {
+                usedAnswerAgain: markHelperAsUsedDto.usedAnswerAgain,
+                usedLuckWheel: markHelperAsUsedDto.usedLuckWheel,
+                usedCallFriend: markHelperAsUsedDto.usedCallFriend,
+            },
         });
     }
 }

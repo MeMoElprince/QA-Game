@@ -14,7 +14,9 @@ import {
     AdminCreateGameDto,
     CreateGameDto,
     GameQueryDto,
+    MarkHelperAsUsedDto,
     UpdateGameDto,
+    UserMarkHelperAsUsedDto,
 } from './dto/game.dto';
 import { GetUser } from 'src/core/auth/decorator/get-user.decorator';
 import { AuthGuard } from '@nestjs/passport';
@@ -123,5 +125,26 @@ export class GameController {
             +gameQuestionId,
             teamId ? +teamId : undefined,
         );
+    }
+
+    @Patch(':gameId/teams/:teamId/mark-helper-as-used')
+    @ApiBearerAuth('default')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOperation({
+        summary: 'mark helper as used for team in a game',
+        description: 'mark helper as used for team',
+    })
+    markHelperAsUsedForTeam(
+        @GetUser('id') userId: number,
+        @Param('gameId') gameId: number,
+        @Param('teamId') teamId: number,
+        @Body() userMarkHelperAsUsed: UserMarkHelperAsUsedDto,
+    ) {
+        const markHelperAsUsed: MarkHelperAsUsedDto = {
+            gameId: +gameId,
+            teamId: +teamId,
+            ...userMarkHelperAsUsed,
+        };
+        return this.gameService.markHelperAsUsed(+userId, markHelperAsUsed);
     }
 }
