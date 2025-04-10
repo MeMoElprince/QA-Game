@@ -5,7 +5,10 @@ import { PrismaModule } from './common/modules/prisma/prisma.module';
 import { EmailModule } from './common/modules/email/email.module';
 import { OtpModule } from './common/modules/otp/otp.module';
 import { SystemModule } from './system/system.module';
-import { UPLOAD_PATH } from './common/constants/path.constant';
+import {
+    CLIENT_SIDE_PATH,
+    UPLOAD_PATH,
+} from './common/constants/path.constant';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ScheduleModule } from '@nestjs/schedule';
 import { UserRepo } from './core/user/repo/user.repo';
@@ -20,6 +23,10 @@ import { PaymentModule } from './payment/payment.module';
         ServeStaticModule.forRoot({
             rootPath: UPLOAD_PATH,
             serveRoot: '/static-uploads',
+        }),
+        ServeStaticModule.forRoot({
+            rootPath: CLIENT_SIDE_PATH,
+            exclude: ['/api'],
         }),
         PrismaModule,
         ConfigModule.forRoot({
