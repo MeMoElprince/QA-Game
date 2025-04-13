@@ -147,4 +147,27 @@ export class GameController {
         };
         return this.gameService.markHelperAsUsed(+userId, markHelperAsUsed);
     }
+
+    @Patch(
+        ':gameId/teams/:teamId/game-questions/:gameQuestionId/luck-wheel-helper',
+    )
+    @ApiBearerAuth('default')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOperation({
+        summary: 'mark helper as used for team in a game',
+        description: 'mark helper as used for team',
+    })
+    async spinLuckWheel(
+        @GetUser('id') userId: number,
+        @Param('gameId') gameId: number,
+        @Param('teamId') teamId: number,
+        @Param('gameQuestionId') gameQuestionId: number,
+    ) {
+        return await this.gameService.spinLuckWheel(
+            +userId,
+            +gameId,
+            +teamId,
+            +gameQuestionId,
+        );
+    }
 }
