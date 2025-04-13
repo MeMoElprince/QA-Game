@@ -22,32 +22,28 @@ import { PaymentModule } from './payment/payment.module';
         PaymentModule,
         ScheduleModule.forRoot(),
         
-        // 1. Static uploads (highest priority)
+        // 1. Highest priority: Uploads
         ServeStaticModule.forRoot({
             rootPath: UPLOAD_PATH,
             serveRoot: '/static-uploads',
-            serveStaticOptions: {
-                fallthrough: false,
-            },
         }),
         
-        // 2. Admin dashboard (medium priority)
+        // 2. Admin dashboard routes
         ServeStaticModule.forRoot({
             rootPath: ADMIN_SIDE_PATH,
             serveRoot: '/dashboard',
             serveStaticOptions: {
-                index: 'index.html', // Explicit admin entry point
-                fallthrough: false,
+                index: 'index.html',
+                fallthrough: false, // Strict 404 for missing admin files
             },
         }),
         
-        // 3. Client-side app (lowest priority)
+        // 3. Client-side app (catch-all)
         ServeStaticModule.forRoot({
             rootPath: CLIENT_SIDE_PATH,
             exclude: ['/api*', '/dashboard*', '/static-uploads*'],
             serveStaticOptions: {
-                index: 'index.html', // Explicit admin entry point
-                fallthrough: true, // Allows client-side routing
+                fallthrough: true, // Allow client-side routing
             },
         }),
         
