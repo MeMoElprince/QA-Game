@@ -21,17 +21,26 @@ import { PaymentModule } from './payment/payment.module';
     imports: [
         PaymentModule,
         ScheduleModule.forRoot(),
+        // Serve static uploads
         ServeStaticModule.forRoot({
             rootPath: UPLOAD_PATH,
             serveRoot: '/static-uploads',
         }),
+        // Serve admin dashboard assets
+        ServeStaticModule.forRoot({
+            rootPath: ADMIN_SIDE_PATH,
+            serveRoot: '/dashboard',
+            serveStaticOptions: {
+                fallthrough: false, // Explicitly set fallthrough to false
+            },
+        }),
+        // Serve client-side assets with fallthrough to allow admin routes
         ServeStaticModule.forRoot({
             rootPath: CLIENT_SIDE_PATH,
             exclude: ['/api'],
-        }),ServeStaticModule.forRoot({
-            rootPath: ADMIN_SIDE_PATH,
-            serveRoot: '/dashboard',
-            exclude: ['/api','/static-uploads'],
+            serveStaticOptions: {
+                fallthrough: true, // Allow proceeding to other routes if file not found
+            },
         }),
         PrismaModule,
         ConfigModule.forRoot({
