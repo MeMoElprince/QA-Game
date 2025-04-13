@@ -46,6 +46,7 @@ import { PaymentModule } from './payment/payment.module';
             rootPath: CLIENT_SIDE_PATH,
             exclude: ['/api*', '/dashboard*', '/static-uploads*'],
             serveStaticOptions: {
+                index: 'index.html', // Explicit admin entry point
                 fallthrough: true, // Allows client-side routing
             },
         }),
