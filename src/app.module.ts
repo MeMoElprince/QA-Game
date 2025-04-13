@@ -21,31 +21,37 @@ import { PaymentModule } from './payment/payment.module';
     imports: [
         PaymentModule,
         ScheduleModule.forRoot(),
-        // Serve static uploads
+        
+        // 1. Static uploads (highest priority)
         ServeStaticModule.forRoot({
             rootPath: UPLOAD_PATH,
             serveRoot: '/static-uploads',
+            serveStaticOptions: {
+                fallthrough: false,
+            },
         }),
-        // Serve admin dashboard assets
+        
+        // 2. Admin dashboard (medium priority)
         ServeStaticModule.forRoot({
             rootPath: ADMIN_SIDE_PATH,
             serveRoot: '/dashboard',
             serveStaticOptions: {
-                fallthrough: false, // Explicitly set fallthrough to false
+                index: 'index.html', // Explicit admin entry point
+                fallthrough: false,
             },
         }),
-        // Serve client-side assets with fallthrough to allow admin routes
+        
+        // 3. Client-side app (lowest priority)
         ServeStaticModule.forRoot({
             rootPath: CLIENT_SIDE_PATH,
-            exclude: ['/api'],
+            exclude: ['/api*', '/dashboard*', '/static-uploads*'],
             serveStaticOptions: {
-                fallthrough: true, // Allow proceeding to other routes if file not found
+                fallthrough: true, // Allows client-side routing
             },
         }),
+        
         PrismaModule,
-        ConfigModule.forRoot({
-            isGlobal: true,
-        }),
+        ConfigModule.forRoot({ isGlobal: true }),
         CoreModule,
         EmailModule,
         OtpModule,
