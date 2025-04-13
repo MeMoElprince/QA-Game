@@ -8,6 +8,7 @@ import { SystemModule } from './system/system.module';
 import {
     CLIENT_SIDE_PATH,
     UPLOAD_PATH,
+    ADMIN_SIDE_PATH
 } from './common/constants/path.constant';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -27,6 +28,10 @@ import { PaymentModule } from './payment/payment.module';
         ServeStaticModule.forRoot({
             rootPath: CLIENT_SIDE_PATH,
             exclude: ['/api'],
+        }),ServeStaticModule.forRoot({
+            rootPath: ADMIN_SIDE_PATH,
+            serveRoot: '/dashboard',
+            exclude: ['/api','/static-uploads'],
         }),
         PrismaModule,
         ConfigModule.forRoot({
