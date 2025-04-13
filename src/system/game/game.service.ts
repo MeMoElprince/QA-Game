@@ -13,6 +13,7 @@ import {
 } from './dto/game.dto';
 import { PrismaService } from 'src/common/modules/prisma/prisma.service';
 import { Prisma, RoleEnum, User } from '@prisma/client';
+import { LuckWheelEnum } from './enum/luck-wheel.enum';
 
 @Injectable()
 export class GameService {
@@ -363,6 +364,7 @@ export class GameService {
             where: {
                 id: gameQuestionId,
                 gameId,
+                answered: false,
             },
             select: {
                 Question: true,
@@ -371,7 +373,7 @@ export class GameService {
 
         if (!gameQuestion)
             throw new BadRequestException(
-                'Game question not found or not in game',
+                'Game question not found, solved or not in game',
             );
 
         return await this.prismaService.$transaction(async (prisma) => {
@@ -430,6 +432,160 @@ export class GameService {
                 usedAnswerAgain: markHelperAsUsedDto.usedAnswerAgain,
                 usedLuckWheel: markHelperAsUsedDto.usedLuckWheel,
                 usedCallFriend: markHelperAsUsedDto.usedCallFriend,
+            },
+        });
+    }
+
+    async spinLuckWheel(
+        userId: number,
+        gameId: number,
+        teamId: number,
+        gameQuestionId: number,
+    ): Promise<LuckWheelEnum> {
+        const game = await this.prismaService.game.findUnique({
+            where: {
+                id: gameId,
+            },
+            include: {
+                Team: true,
+            },
+        });
+        if (!game) throw new BadRequestException('Game not found');
+        if (game.userId !== userId)
+            throw new ForbiddenException(
+                'You are not allowed to update this game',
+            );
+        const team = game.Team.find((team) => team.id === teamId);
+        if (!team) throw new BadRequestException('Team not found in game');
+        if (team.usedLuckWheel)
+            throw new ConflictException('Luck wheel already used');
+        const luckWheelSize = Object.keys(LuckWheelEnum).length;
+        const randomLuckWheelValue = Math.floor(Math.random() * luckWheelSize);
+        console.log({ randomLuckWheelValue });
+        const luckWheelKey = Object.keys(LuckWheelEnum)[
+            randomLuckWheelValue
+        ] as keyof typeof LuckWheelEnum;
+        const luckWheelValue: LuckWheelEnum = LuckWheelEnum[luckWheelKey];
+        console.log({ luckWheelValue });
+        if (luckWheelValue === LuckWheelEnum.LUCK_OVER)
+            await this.markLuckWheelAsUsed(gameId, teamId, this.prismaService);
+        else if (luckWheelValue === LuckWheelEnum.GIFT) {
+            await this.prismaService.$transaction(async (prisma) => {
+                await this.getQuestionScore(
+                    teamId,
+                    gameId,
+                    gameQuestionId,
+                    prisma,
+                );
+                await this.markLuckWheelAsUsed(gameId, teamId, prisma);
+                await this.markGameQuestionAsAnswered(gameQuestionId, prisma);
+            });
+        } else if (luckWheelValue === LuckWheelEnum.DECREASE300POINTSOPPONENT) {
+            await this.prismaService.$transaction(async (prisma) => {
+                const opponentTeam = game.Team.find((t) => t.id !== team.id);
+                if (!opponentTeam)
+                    throw new BadRequestException('Opponent team not found');
+                await this.decreaseTeamScore(
+                    gameId,
+                    opponentTeam.id,
+                    300,
+                    prisma,
+                );
+                await this.markLuckWheelAsUsed(gameId, team.id, prisma);
+            });
+        } else if (luckWheelValue === LuckWheelEnum.GOOGLE_SEARCH) {
+            await this.prismaService.$transaction(async (prisma) => {
+                await this.markLuckWheelAsUsed(gameId, team.id, prisma);
+            });
+        } else {
+            throw new BadRequestException(
+                'Luck wheel value not found, please try again',
+            );
+        }
+        console.log({ luckWheelValue });
+        return luckWheelValue;
+    }
+
+    private async markLuckWheelAsUsed(
+        gameId: number,
+        teamId: number,
+        prisma: Prisma.TransactionClient = this.prismaService,
+    ) {
+        return await prisma.team.update({
+            where: {
+                id: teamId,
+                gameId,
+            },
+            data: {
+                usedLuckWheel: true,
+            },
+        });
+    }
+
+    private async getQuestionScore(
+        teamId: number,
+        gameId: number,
+        gameQuestionId: number,
+        prisma: Prisma.TransactionClient = this.prismaService,
+    ) {
+        const gameQuestion = await prisma.gameQuestion.findUnique({
+            where: {
+                id: gameQuestionId,
+                gameId,
+            },
+            select: {
+                Question: {
+                    select: {
+                        score: true,
+                    },
+                },
+            },
+        });
+        if (!gameQuestion)
+            throw new BadRequestException(
+                'Game question not found or not in game',
+            );
+        return await prisma.team.update({
+            where: {
+                id: teamId,
+            },
+            data: {
+                score: {
+                    increment: gameQuestion.Question.score,
+                },
+            },
+        });
+    }
+
+    private async markGameQuestionAsAnswered(
+        gameQuestionId: number,
+        prisma: Prisma.TransactionClient = this.prismaService,
+    ) {
+        return await prisma.gameQuestion.update({
+            where: {
+                id: gameQuestionId,
+            },
+            data: {
+                answered: true,
+            },
+        });
+    }
+
+    private async decreaseTeamScore(
+        gameId: number,
+        teamId: number,
+        value: number = 300,
+        prisma: Prisma.TransactionClient = this.prismaService,
+    ) {
+        return await prisma.team.update({
+            where: {
+                id: teamId,
+                gameId,
+            },
+            data: {
+                score: {
+                    decrement: value,
+                },
             },
         });
     }
