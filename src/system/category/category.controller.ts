@@ -48,6 +48,10 @@ export class CategoryController {
                     const uniqueSuffix =
                         Date.now() + '-' + Math.round(Math.random() * 1e9);
                     const ext = extname(file.originalname);
+                    console.log({
+                        uniqueSuffix,
+                        ext,
+                    })
                     callback(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
                 },
             }),

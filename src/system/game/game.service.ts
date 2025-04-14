@@ -589,4 +589,44 @@ export class GameService {
             },
         });
     }
+
+    async getGameQuestion(
+        userId: number,
+        gameId: number,
+        gameQuestionId: number,
+    ) {
+        const game = await this.prismaService.game.findUnique({
+            where: {
+                id: gameId,
+            },
+            include: {
+                GameCategory: {
+                    include: {
+                        GameQuestion: {
+                            where: {
+                                id: gameQuestionId,
+                            },
+                            include: {
+                                Question: {
+                                    include: {
+                                        QuestionFile: true,
+                                        AnswerFile: true,
+                                        Category: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        });
+        if (!game) throw new BadRequestException('Game not found');
+        if (game.userId !== userId)
+            throw new ForbiddenException(
+                'You are not allowed to update this game',
+            );
+        const question = game.GameCategory[0]?.GameQuestion[0]?.Question;
+        if (!question) throw new BadRequestException('Game question not found');
+        return { data: [question] };
+    }
 }

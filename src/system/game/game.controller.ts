@@ -170,4 +170,23 @@ export class GameController {
             +gameQuestionId,
         );
     }
+
+    @Get(':id/gameQuestions/:gameQuestionId')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOperation({
+        summary: 'Get game question',
+        description: 'Get game question by id and gameId',
+    })
+    @ApiBearerAuth('default')
+    async getGameQuestion(
+        @Param('id') gameId: string,
+        @Param('gameQuestionId') gameQuestionId: string,
+        @GetUser('id') userId: number,
+    ) {
+        return await this.gameService.getGameQuestion(
+            +userId,
+            +gameId,
+            +gameQuestionId,
+        );
+    }
 }

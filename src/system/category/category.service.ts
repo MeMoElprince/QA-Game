@@ -26,6 +26,7 @@ export class CategoryService {
         if (rest.parentCategoryId === 0) delete rest.parentCategoryId;
         const category = await this.prismaService.$transaction(
             async (prisma) => {
+                console.log({ image });
                 const img = await prisma.file.create({
                     data: {
                         path: join('categories', `${image.filename}`),
