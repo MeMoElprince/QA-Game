@@ -10,6 +10,7 @@ export const userPublicFields: selection = {
     phoneNumber: true,
     role: true,
     ProfileImage: true,
+    address: true,
 };
 
 export const userPrivateFields: selection = {
@@ -46,4 +47,5 @@ export const userSecretFields: selection = {
     updatedAt: true,
     userCreationMethod: true,
     verified: true,
+    address: true,
 };

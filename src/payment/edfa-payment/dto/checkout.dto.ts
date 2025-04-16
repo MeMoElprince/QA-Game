@@ -60,7 +60,7 @@ export class EdfaCheckoutDto {
 
     @IsOptional()
     @IsString()
-    urlRedirect?: string = 'https://app.hobbystation.co';
+    urlRedirect?: string = 'https://rakazwafakr.com';
 
     @IsOptional()
     @IsString()

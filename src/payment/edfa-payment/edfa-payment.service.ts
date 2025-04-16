@@ -5,6 +5,7 @@ import * as crypto from 'crypto';
 import axios from 'axios';
 import { EdfaCheckoutDto } from './dto/checkout.dto';
 import FormData from 'form-data';
+import { EdfaCurrency } from './enum/currency.enum';
 
 @Injectable()
 export class EdfaPaymentService {
@@ -70,6 +71,20 @@ export class EdfaPaymentService {
     }
 
     public async checkout(edfaCheckoutDto: EdfaCheckoutDto) {
+        edfaCheckoutDto.currency = edfaCheckoutDto.currency || EdfaCurrency.SAR;
+        edfaCheckoutDto.action = edfaCheckoutDto.action || 'SALE';
+        edfaCheckoutDto.description =
+            edfaCheckoutDto.description || 'Payment for order';
+        edfaCheckoutDto.country = edfaCheckoutDto.country || 'SA';
+        edfaCheckoutDto.zip = edfaCheckoutDto.zip || '12221';
+        edfaCheckoutDto.recurringInit = edfaCheckoutDto.recurringInit || 'N';
+        edfaCheckoutDto.reqToken = edfaCheckoutDto.reqToken || 'N';
+        edfaCheckoutDto.urlRedirect =
+            edfaCheckoutDto.urlRedirect ||
+            this.configService.get('FRONT_URL') ||
+            this.configService.get('FRONT_URL_DEV') ||
+            'http://localhost:3000';
+        console.log({ edfaCheckoutDto });
         const hash = this.generateSignature({
             orderAmount: edfaCheckoutDto.amount,
             orderCurrency: edfaCheckoutDto.currency,
@@ -82,8 +97,8 @@ export class EdfaPaymentService {
             orderDescription: edfaCheckoutDto.description,
             orderNumber: edfaCheckoutDto.orderNumber,
         });
-        // console.log({ hash });
-        // console.log(this.getMerchantKey(), this.getPassword());
+        console.log({ hash });
+        console.log(this.getMerchantKey(), this.getPassword());
 
         const formData = new FormData();
         formData.append('edfa_merchant_id', this.getMerchantKey());
@@ -118,9 +133,9 @@ export class EdfaPaymentService {
             );
             return response.data;
         } catch (err) {
-            console.log('error');
-            // console.log(err);
-            // console.log(err.message);
+            console.log('edfa error');
+            console.log(err);
+            console.log(err.message);
             return null;
         }
     }

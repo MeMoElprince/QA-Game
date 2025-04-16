@@ -12,6 +12,7 @@ import { EdfaPaymentService } from 'src/payment/edfa-payment/edfa-payment.servic
 import { ConfirmCheckoutOrderDto } from './dto/confirm-checkout-order.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { CheckoutPackageDto } from './dto/checkout-event.dto';
+import { EdfaWebhookDto } from '../edfa-payment/dto/edfa-webhook.dto';
 
 @Injectable()
 export class OrderService {
@@ -27,9 +28,26 @@ export class OrderService {
         ip: string,
     ) {
         const userId = user.id;
-        if (!user.phoneNumber)
+        const currentUser = await this.prismaService.user.findUnique({
+            where: {
+                id: userId,
+            },
+        });
+        if (!currentUser.phoneNumber)
             throw new BadRequestException(
-                'Please complete your profile [phone] to checkout the package',
+                'Please add your phone number to checkout the package',
+            );
+        if (!currentUser.address)
+            throw new BadRequestException(
+                'Please add your address to checkout the package',
+            );
+        if (!currentUser.city)
+            throw new BadRequestException(
+                'Please add your city to checkout the package',
+            );
+        if (!currentUser.zipCode)
+            throw new BadRequestException(
+                'Please add your zip code to checkout the package',
             );
         const pack = await this.prismaService.package.findUnique({
             where: {
@@ -76,13 +94,26 @@ export class OrderService {
         // TODO final price to be increased with taxes
         if (order.finalPrice === 0)
             return await this.handleOrderPaidSuccess(order.id);
-        const metadata = {
-            type: 'package',
-            orderId: order.id,
-        };
-        return order;
-        // TODO PAYMENT METHOD
-        throw new BadRequestException('Invalid payment method');
+        const usernames = currentUser.name.split(' ');
+        const sz = usernames.length;
+        const firstName = usernames[0];
+        const lastName = usernames[sz - 1];
+        console.log({ address: currentUser.address });
+        const checkout = await this.edfaPaymentService.checkout({
+            amount: order.finalPrice,
+            description: `Checkout package ${pack.id}`,
+            orderNumber: `${order.id}`,
+            firstName,
+            lastName,
+            email: currentUser.email,
+            phoneNumber: currentUser.phoneNumber,
+            ip,
+            address: currentUser.address,
+            city: currentUser.city,
+            zip: currentUser.zipCode,
+        });
+
+        return checkout;
     }
 
     async create(createOrderDto: CreateOrderDto) {
@@ -127,8 +158,20 @@ export class OrderService {
         return orders;
     }
 
-    async handleEdfaWebhook(body: any) {
-        console.log({ body });
+    async handleEdfaWebhook(body: EdfaWebhookDto) {
+        console.log('Webhook body:', body);
+        const { order_id: orderId, trans_id: transactionId } = body;
+        if (!orderId) throw new BadRequestException('Order ID is required');
+        const order = await this.prismaService.order.findUnique({
+            where: {
+                id: Number(orderId),
+            },
+        });
+        if (!order) throw new NotFoundException('Order not found');
+        await this.confirmOrder({
+            orderId: Number(orderId),
+            transactionId,
+        });
     }
 
     async handleOrderPaidSuccess(orderId: number) {

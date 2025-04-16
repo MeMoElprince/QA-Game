@@ -49,6 +49,10 @@ export class UserService {
                     id,
                 },
                 data: {
+                    zipCode: userData.zipCode,
+                    city: userData.city,
+                    phoneNumber: userData.phoneNumber,
+                    address: userData.address,
                     name: userData.name,
                     ProfileImage: file
                         ? {
@@ -193,7 +197,9 @@ export class UserService {
             throw new ForbiddenException(
                 'Admin can only be created by the system!',
             );
-        const username = await this.userHelper.suggestUsername(createUserDto.name);
+        const username = await this.userHelper.suggestUsername(
+            createUserDto.name,
+        );
         const newUser = await this.userRepo.createUserByRole({
             ...createUserDto,
             username,

@@ -9,7 +9,6 @@ import { ConfigService } from '@nestjs/config';
 import * as argon2 from 'argon2';
 import { Environment } from 'src/common/enums/environment.enum';
 import { Prisma, RoleEnum, User } from '@prisma/client';
-import { UserService } from '../user/user.service';
 import { EmailService } from 'src/common/modules/email/email.service';
 import { UserCreationMethod } from '../user/enum/creation-method.enum';
 import { isEmail } from 'class-validator';
@@ -58,7 +57,10 @@ export class AuthService {
             user = await this.userRepo.getUserByPhoneNumber(
                 loginData.phoneNumber,
             );
-        if (user.isDeleted) throw new BadRequestException('User is deleted');
+        else throw new BadRequestException('Email or Phone number is required');
+        if (!user)
+            throw new NotFoundException("email or password doesn't match");
+        if (user.isDeleted) throw new BadRequestException('User not found');
         if (!user.verified) {
             let isEmailSent = false;
             // if last verification email sent less than 5 minutes

@@ -22,6 +22,18 @@ async function bootstrap() {
     app.useGlobalInterceptors(new ResponseFormatInterceptor());
     app.setGlobalPrefix('api');
     const configService = new ConfigService();
+
+    const [edfaKey, edfaPassword] = [
+        configService.get('EDFA_MERCHANT_KEY'),
+        configService.get('EDFA_PASSWORD'),
+    ];
+    if (!edfaKey || !edfaPassword) {
+        console.error(
+            'EDFA_MERCHANT_KEY and EDFA_PASSWORD must be set in the environment variables',
+        );
+        process.exit(1);
+    }
+
     const config = new DocumentBuilder()
         .addBearerAuth(undefined, 'default')
         .setTitle('QA Game')

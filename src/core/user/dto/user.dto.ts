@@ -10,6 +10,7 @@ import {
     IsNotEmpty,
     IsOptional,
     IsPhoneNumber,
+    IsPostalCode,
     IsString,
 } from 'class-validator';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
@@ -260,6 +261,36 @@ export class CreateUserDto {
     email: string;
 
     @ApiProperty({
+        example: 'st 1',
+        description: 'The address of the user',
+        type: String,
+        required: false,
+    })
+    @IsOptional()
+    @IsString()
+    address?: string;
+
+    @ApiProperty({
+        example: 'Cairo',
+        description: 'The city of the user',
+        type: String,
+        required: false,
+    })
+    @IsOptional()
+    @IsString()
+    city?: string;
+
+    @ApiProperty({
+        example: '132131',
+        description: 'The zipCode of the user',
+        type: String,
+        required: false,
+    })
+    @IsOptional()
+    @IsPostalCode('any')
+    zipCode?: string;
+
+    @ApiProperty({
         description: 'The date of birth of the user',
         required: false,
     })
@@ -338,7 +369,6 @@ export class UpdateUserDto extends PartialType(
 export class UpdateUserDataDto extends PartialType(
     OmitType(UpdateUserDto, [
         'password',
-        'phoneNumber',
         'gender',
         'verified',
         'role',
