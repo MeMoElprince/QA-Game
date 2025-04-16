@@ -34,9 +34,14 @@ jobs:
         run: |
           touch .env
           echo "${{ secrets.RAKEZENV }}" > .env
-      - name: Remove old app container (only if exists)
-        run: |
-            docker rm -f nest-app-game || true
 
-      - name: Install dependencies via Docker Compose
-        run: docker compose up --build -d
+      - name: Cleanup previous Docker containers
+        run: |
+          # Stop and remove containers defined in docker-compose.yml
+          docker compose down --remove-orphans || true
+          
+          # Force remove lingering container if still exists
+          docker rm -f nest-app-game || true
+
+      - name: Build and start containers
+        run: docker compose up --build -d --remove-orphans
