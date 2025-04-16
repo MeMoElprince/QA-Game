@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: faker
 
     strategy:
       matrix:
@@ -35,9 +35,5 @@ jobs:
           touch .env
           echo "${{ secrets.RAKEZENV }}" > .env
 
-      - name: Remove old app container (only if exists)
-        run: |
-          docker rm -f nest-app-game || true
-
-      - name: Rebuild and start containers
-        run: docker-compose up --build -d
+      - name: Install dependencies via Docker Compose
+        run: docker compose up --build -d
