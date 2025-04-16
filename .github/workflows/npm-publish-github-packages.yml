@@ -40,4 +40,4 @@ jobs:
           docker rm -f nest-app-game || true
 
       - name: Rebuild and start containers
-        run: docker compose up --build -d
+        run: docker-compose up --build -d
