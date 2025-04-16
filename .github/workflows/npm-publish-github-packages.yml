@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: rakez # or use 'self-hosted' if you're using your own server
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
@@ -35,6 +35,9 @@ jobs:
           touch .env
           echo "${{ secrets.RAKEZENV }}" > .env
 
-      - name: Build and start containers (without stopping others)
+      - name: Remove old app container (only if exists)
         run: |
-          docker compose up --build -d
+          docker rm -f nest-app-game || true
+
+      - name: Rebuild and start containers
+        run: docker compose up --build -d
