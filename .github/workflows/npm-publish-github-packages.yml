@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: faker
+    runs-on: rakez
 
     strategy:
       matrix:
@@ -35,5 +35,28 @@ jobs:
           touch .env
           echo "${{ secrets.RAKEZENV }}" > .env
 
-      - name: Install dependencies via Docker Compose
+      - name: Start Docker containers
         run: docker compose up --build -d
+
+      - name: Wait for services to be ready
+        run: |
+          echo "Waiting for services to initialize..."
+          sleep 20
+          docker compose ps
+
+      - name: Backup PostgreSQL before migration
+        run: |
+          mkdir -p db_backups
+          docker exec postgres-db-game pg_dump -U postgres -d game > db_backups/backup.sql
+
+      - name: Upload DB backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: postgres-backup
+          path: db_backups/backup.sql
+
+      - name: Run Prisma migrations
+        run: docker compose exec -T app npx prisma migrate deploy
+
+      - name: Stop containers
+        run: docker compose down
