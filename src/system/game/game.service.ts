@@ -595,38 +595,34 @@ export class GameService {
         gameId: number,
         gameQuestionId: number,
     ) {
-        const game = await this.prismaService.game.findUnique({
+        const gameQuestion = await this.prismaService.gameQuestion.findUnique({
             where: {
-                id: gameId,
+                id: gameQuestionId,
             },
-            include: {
-                GameCategory: {
+            select: {
+                Game: true,
+                Question: {
                     include: {
-                        GameQuestion: {
-                            where: {
-                                id: gameQuestionId,
-                            },
-                            include: {
-                                Question: {
-                                    include: {
-                                        QuestionFile: true,
-                                        AnswerFile: true,
-                                        Category: true,
-                                    },
-                                },
-                            },
-                        },
+                        QuestionFile: true,
+                        AnswerFile: true,
+                        Category: true,
                     },
                 },
             },
         });
-        if (!game) throw new BadRequestException('Game not found');
-        if (game.userId !== userId)
-            throw new ForbiddenException(
-                'You are not allowed to update this game',
+
+        if (!gameQuestion || gameQuestion.Game.id !== gameId)
+            throw new BadRequestException(
+                'Game or the question does not exist!',
             );
-        const question = game.GameCategory[0]?.GameQuestion[0]?.Question;
-        if (!question) throw new BadRequestException('Game question not found');
+
+        if (gameQuestion.Game.userId !== userId)
+            throw new ForbiddenException(
+                'You are not allowed to access this game question',
+            );
+
+        const question = gameQuestion.Question;
+        if (!question) throw new BadRequestException('question not found');
         return { data: [question] };
     }
 }
