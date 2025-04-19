@@ -16,6 +16,7 @@ import { UserRepo } from './core/user/repo/user.repo';
 import { CommerceModule } from './commerce/commerce.module';
 import { SupportModule } from './support/support.module';
 import { PaymentModule } from './payment/payment.module';
+console.log(CLIENT_SIDE_PATH)
 
 @Module({
     imports: [
