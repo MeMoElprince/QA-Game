@@ -21,7 +21,7 @@ services:
       - app-network
 
   db:
-    image: postgres:16.2-alpine  # ✅ Use valid version
+    image: postgres:17.2   # ✅ Use valid version
     container_name: postgres-db-game
     environment:
       POSTGRES_USER: ${DB_USER:-postgres}
