@@ -13,6 +13,8 @@ export class EmailService {
 
     constructor(private readonly configService: ConfigService) {
         this.from = `QA Game <${configService.get('EMAIL')}>`;
+        console.log(this.from)
+        console.log(this.configService.get('EMAIL_PASSWORD'))
     }
 
     newTransport() {
