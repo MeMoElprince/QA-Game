@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: rakez  # ✅ Fixed runner
+    runs-on: faker
 
     strategy:
       matrix:
@@ -17,6 +17,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          clean: false
+
+      - name: Set environment variables
+        run: echo "HOME=/root" >> $GITHUB_ENV
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -25,9 +31,9 @@ jobs:
           cache: 'npm'
 
       - name: Create .env file
-        env:
-          RAKEZENV: ${{ secrets.RAKEZENV }}
-        run: echo "$RAKEZENV" > .env  # ✅ Better secret handling
+        run: |
+          touch .env
+          echo "${{ secrets.RAKEZENV }}" > .env
 
       - name: Install dependencies via Docker Compose
-        run: docker compose up --build --exit-code-from app  # ✅ Exit on failure
+        run: docker compose up --build -d
