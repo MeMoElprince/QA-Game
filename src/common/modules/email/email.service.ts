@@ -95,6 +95,8 @@ export class EmailService {
     }
 
     async verifyAccount(user: User, url: string) {
+        console.log('verifyAccount',user,url)
+
         await this.send(
             'verifyAccount',
             'Please Verify Your Account',
@@ -104,6 +106,7 @@ export class EmailService {
     }
 
     async verifyAccountProvider(user: User, url: string) {
+        console.log('verifyAccountProvider',user,url)
         await this.send(
             'verifyAccountProvider',
             'Your Application is under reviewd, Please Verify Your Account',
@@ -113,6 +116,8 @@ export class EmailService {
     }
 
     async forgetPassword(user: User, url: string) {
+        console.log('Forget Pass',user,url)
+
         await this.send('forgetPassword', 'Reset Your Password', user, url);
     }
 }
