@@ -24,6 +24,7 @@ import {
     UpdatePasswordDto,
 } from './dto/auth.dto';
 import { Request } from 'express';
+import { getCleanIp } from 'src/common/utils/cleanIp';
 
 @Controller('auth')
 export class AuthController {
@@ -49,7 +50,7 @@ export class AuthController {
         @Req() req: Request,
     ) {
         const ip = req.ip;
-        return this.authService.googleSignIn(googleLoginDto, ip);
+        return this.authService.googleSignIn(googleLoginDto, getCleanIp(ip));
     }
 
     @HttpCode(HttpStatus.CREATED)
@@ -59,7 +60,7 @@ export class AuthController {
     })
     @Post('signup')
     async signup(@Body() signupDto: SignupDto, @Req() req: Request) {
-        return this.authService.signup(signupDto, req.ip);
+        return this.authService.signup(signupDto, getCleanIp(req.ip));
     }
 
     @ApiOperation({

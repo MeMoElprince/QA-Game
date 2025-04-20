@@ -20,6 +20,7 @@ import { RoleEnum, User } from '@prisma/client';
 import { Request } from 'express';
 import { ConfirmCheckoutOrderDto } from './dto/confirm-checkout-order.dto';
 import { EdfaWebhookDto } from '../edfa-payment/dto/edfa-webhook.dto';
+import { getCleanIp } from 'src/common/utils/cleanIp';
 
 @ApiTags('Order')
 @Controller('orders')
@@ -57,7 +58,7 @@ export class OrderController {
         return this.orderService.checkoutPackage(
             user,
             checkoutPackageDto,
-            req.ip,
+            getCleanIp(req.ip),
         );
     }
 
