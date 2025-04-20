@@ -99,6 +99,14 @@ export class EdfaPaymentService {
         });
         console.log({ hash });
         console.log(this.getMerchantKey(), this.getPassword());
+        console.log(
+            '------------------------- Full Object ------------------------ ',
+        );
+        console.log('---------- edfaCheckoutDto --------- ');
+        console.log(edfaCheckoutDto);
+        console.log(
+            '=================================================================',
+        );
 
         const formData = new FormData();
         formData.append('edfa_merchant_id', this.getMerchantKey());
