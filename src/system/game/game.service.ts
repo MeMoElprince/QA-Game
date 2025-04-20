@@ -118,11 +118,6 @@ export class GameService {
                         >`SELECT id FROM "Question"
                         WHERE "categoryId" = ${category.id}
                             AND "score" = ${score}
-                            AND NOT EXISTS (
-                            SELECT 1 FROM "GameQuestion" gq
-                            JOIN "Game" g ON gq."gameId" = g.id
-                            WHERE g."userId" = ${userId} AND gq."questionId" = "Question".id
-                            )
                         ORDER BY RANDOM()
                         LIMIT 2`;
                         if (questions.length < 2)
@@ -270,11 +265,6 @@ export class GameService {
                     >`SELECT id FROM "Question"
                         WHERE "categoryId" = ${category.id}
                             AND "score" = ${score}
-                            AND NOT EXISTS (
-                            SELECT 1 FROM "GameQuestion" gq
-                            JOIN "Game" g ON gq."gameId" = g.id
-                            WHERE g."userId" = ${userId} AND gq."questionId" = "Question".id
-                            )
                         ORDER BY RANDOM()
                         LIMIT 2`;
 
