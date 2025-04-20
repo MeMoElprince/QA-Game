@@ -8,6 +8,7 @@ import {
     Delete,
     UseGuards,
     Query,
+    Put,
 } from '@nestjs/common';
 import { GameService } from './game.service';
 import {
@@ -22,6 +23,7 @@ import { GetUser } from 'src/core/auth/decorator/get-user.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import {
     ApiBearerAuth,
+    ApiBody,
     ApiOperation,
     ApiQuery,
     ApiTags,
@@ -187,6 +189,67 @@ export class GameController {
             +userId,
             +gameId,
             +gameQuestionId,
+        );
+    }
+
+    @Patch(':id/finish-game')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOperation({
+        summary: 'Finish game',
+        description: 'Finish game by id',
+    })
+    @ApiBearerAuth('default')
+    async finishGame(@Param('id') id: string, @GetUser('id') userId: number) {
+        return await this.gameService.finishGame(+id, +userId);
+    }
+
+    @Put(':id/replay-game')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOperation({
+        summary: 'Replay game',
+        description: 'Replay game by id',
+    })
+    @ApiBearerAuth('default')
+    async replayGame(
+        @Param('id') id: string,
+        @GetUser('id') userId: number,
+        @Body() createGame: CreateGameDto,
+    ) {
+        console.log('HRERETERTERTET E@');
+        return await this.gameService.userReplayGame(+userId, +id, createGame);
+    }
+
+    @Patch(':id/teams/:teamId/score')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOperation({
+        summary: 'Update team score',
+        description: 'Update team score by id and gameId',
+    })
+    @ApiBody({
+        description: 'Update team score',
+        required: true,
+        schema: {
+            type: 'object',
+            properties: {
+                score: {
+                    type: 'number',
+                    example: 100,
+                },
+            },
+        },
+    })
+    @ApiBearerAuth('default')
+    async updateTeamScore(
+        @Param('id') gameId: number,
+        @Param('teamId') teamId: number,
+        @GetUser('id') userId: number,
+        @Body('score') score: number,
+    ) {
+        return await this.gameService.updateTeamScore(
+            +gameId,
+            +teamId,
+            +userId,
+            score,
         );
     }
 }

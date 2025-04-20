@@ -12,12 +12,69 @@ import {
     UpdateGameDto,
 } from './dto/game.dto';
 import { PrismaService } from 'src/common/modules/prisma/prisma.service';
-import { Prisma, RoleEnum, User } from '@prisma/client';
+import {
+    GameStatusEnum,
+    Prisma,
+    Question,
+    RoleEnum,
+    User,
+} from '@prisma/client';
 import { LuckWheelEnum } from './enum/luck-wheel.enum';
 
 @Injectable()
 export class GameService {
     constructor(private readonly prismaService: PrismaService) {}
+
+    async updateTeamScore(
+        gameId: number,
+        teamId: number,
+        userId: number,
+        score: number,
+    ) {
+        const team = await this.prismaService.team.findUnique({
+            where: {
+                id: teamId,
+                gameId,
+            },
+            include: {
+                Game: true,
+            },
+        });
+        if (!team) throw new BadRequestException('Team not found in game');
+        if (team.Game.userId !== userId)
+            throw new ForbiddenException(
+                'You are not allowed to update this game',
+            );
+        return await this.prismaService.team.update({
+            where: {
+                id: teamId,
+            },
+            data: {
+                score,
+            },
+        });
+    }
+
+    async finishGame(gameId: number, userId: number) {
+        const game = await this.prismaService.game.findUnique({
+            where: {
+                id: gameId,
+            },
+        });
+        if (!game) throw new BadRequestException('Game not found');
+        if (game.userId !== userId)
+            throw new ForbiddenException(
+                'You are not allowed to update this game',
+            );
+        return await this.prismaService.game.update({
+            where: {
+                id: gameId,
+            },
+            data: {
+                status: GameStatusEnum.FINISHED,
+            },
+        });
+    }
 
     async create(userId: number, createGameDto: CreateGameDto) {
         // create game then create 6 categories then create for each category 6 questions 2 of 200 and 2 of 400 and 2 of 600
@@ -56,20 +113,18 @@ export class GameService {
                 for (const category of categories) {
                     const scores = [200, 400, 600];
                     for (const score of scores) {
-                        const questions = await prisma.question.findMany({
-                            where: {
-                                categoryId: category.id,
-                                score,
-                                GameQuestion: {
-                                    none: {
-                                        Game: {
-                                            userId: userId,
-                                        },
-                                    },
-                                },
-                            },
-                            take: 2,
-                        });
+                        const questions = await prisma.$queryRaw<
+                            Question[]
+                        >`SELECT id FROM "Question"
+                        WHERE "categoryId" = ${category.id}
+                            AND "score" = ${score}
+                            AND NOT EXISTS (
+                            SELECT 1 FROM "GameQuestion" gq
+                            JOIN "Game" g ON gq."gameId" = g.id
+                            WHERE g."userId" = ${userId} AND gq."questionId" = "Question".id
+                            )
+                        ORDER BY RANDOM()
+                        LIMIT 2`;
                         if (questions.length < 2)
                             throw new ConflictException(
                                 `Category ${category.name} does not have enough questions for score ${score}`,
@@ -150,6 +205,152 @@ export class GameService {
             },
         );
         return newGame;
+    }
+
+    async userReplayGame(
+        userId: number,
+        gameId: number,
+        createGameDto: CreateGameDto,
+    ) {
+        const existingGame = await this.prismaService.game.findUnique({
+            where: {
+                id: gameId,
+                userId,
+            },
+        });
+        if (!existingGame)
+            throw new BadRequestException(
+                'Game not found or not owned by user',
+            );
+
+        // no need to check if he owns game
+
+        // clear all game questions, game categories and teams
+        await this.prismaService.$transaction(async (prisma) => {
+            await prisma.gameQuestion.deleteMany({
+                where: {
+                    gameId,
+                },
+            });
+            await prisma.gameCategory.deleteMany({
+                where: {
+                    gameId,
+                },
+            });
+            await prisma.team.deleteMany({
+                where: {
+                    gameId,
+                },
+            });
+
+            const categories = await prisma.category.findMany({
+                where: {
+                    id: {
+                        in: createGameDto.categoriesId,
+                    },
+                },
+                select: {
+                    name: true,
+                    id: true,
+                    Question: {
+                        take: 0,
+                    },
+                },
+            });
+            if (categories.length !== createGameDto.categoriesId.length)
+                throw new BadRequestException(
+                    `There are ${createGameDto.categoriesId.length - categories.length} categories that do not exist`,
+                );
+
+            for (const category of categories) {
+                const scores = [200, 400, 600];
+                for (const score of scores) {
+                    const questions = await prisma.$queryRaw<
+                        Question[]
+                    >`SELECT id FROM "Question"
+                        WHERE "categoryId" = ${category.id}
+                            AND "score" = ${score}
+                            AND NOT EXISTS (
+                            SELECT 1 FROM "GameQuestion" gq
+                            JOIN "Game" g ON gq."gameId" = g.id
+                            WHERE g."userId" = ${userId} AND gq."questionId" = "Question".id
+                            )
+                        ORDER BY RANDOM()
+                        LIMIT 2`;
+
+                    if (questions.length < 2)
+                        throw new ConflictException(
+                            `Category ${category.name} does not have enough questions for score ${score}`,
+                        );
+                    category.Question.push(...questions);
+                }
+            }
+
+            const game = await prisma.game.update({
+                where: {
+                    id: gameId,
+                },
+                data: {
+                    rePlayCount: {
+                        increment: 1,
+                    },
+                    status: GameStatusEnum.PLAYING,
+                    name: createGameDto.name,
+                    Team: {
+                        createMany: {
+                            data: createGameDto.teams.map((team, idx) => {
+                                return {
+                                    name: team.name,
+                                    order: idx,
+                                    playerCount: team.playerCount,
+                                    score: 0,
+                                };
+                            }),
+                        },
+                    },
+                    GameCategory: {
+                        createMany: {
+                            data: categories.map((category) => {
+                                return {
+                                    categoryId: category.id,
+                                };
+                            }),
+                        },
+                    },
+                    User: {
+                        connect: {
+                            id: userId,
+                        },
+                    },
+                },
+            });
+
+            const gameCategories = await prisma.gameCategory.findMany({
+                where: {
+                    gameId: game.id,
+                },
+                select: {
+                    id: true,
+                    categoryId: true,
+                },
+            });
+
+            for (const gameCategory of gameCategories) {
+                const categoryQuestions = categories.find(
+                    (category) => category.id === gameCategory.categoryId,
+                ).Question;
+                await prisma.gameQuestion.createMany({
+                    data: categoryQuestions.map((question) => {
+                        return {
+                            gameId: game.id,
+                            gameCategoryId: gameCategory.id,
+                            questionId: question.id,
+                        };
+                    }),
+                });
+            }
+        });
+        return existingGame;
     }
 
     async createFreeGame(adminCreateGameDto: AdminCreateGameDto) {
@@ -389,6 +590,16 @@ export class GameService {
                         },
                     },
                 });
+            await prisma.game.update({
+                where: {
+                    id: gameId,
+                },
+                data: {
+                    playerTurn: {
+                        increment: 1,
+                    },
+                },
+            });
             return await prisma.gameQuestion.update({
                 where: {
                     id: gameQuestionId,

@@ -25,6 +25,9 @@ export const userPrivateFields: selection = {
     address: true,
     nationality: true,
     qrCode: true,
+    city: true,
+    zipCode: true,
+    ownedGameCount: true,
 };
 
 export const userSecretFields: selection = {
@@ -48,4 +51,7 @@ export const userSecretFields: selection = {
     userCreationMethod: true,
     verified: true,
     address: true,
+    city: true,
+    zipCode: true,
+    ownedGameCount: true,
 };

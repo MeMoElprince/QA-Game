@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 import { Prisma, RoleEnum, UserCreationMethodEnum } from '@prisma/client';
 import { PrismaService } from 'src/common/modules/prisma/prisma.service';
 
@@ -100,5 +104,27 @@ export class UserRepo {
         return prisma.user.create({
             data,
         });
+    }
+
+    async recoverUser(userId: number, UserUpdateInput: Prisma.UserUpdateInput) {
+        const user = await this.prismaService.user.findUnique({
+            where: {
+                id: userId,
+            },
+        });
+        if (!user) throw new NotFoundException('User not found');
+        if (!user.isDeleted)
+            throw new BadRequestException('User is not deleted');
+        const updatedUser = await this.prismaService.user.update({
+            where: {
+                id: userId,
+            },
+            data: {
+                ...UserUpdateInput,
+                isDeleted: false,
+                verified: false,
+            },
+        });
+        return updatedUser;
     }
 }

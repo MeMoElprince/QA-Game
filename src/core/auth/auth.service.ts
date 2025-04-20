@@ -114,7 +114,18 @@ export class AuthService {
     async signup(signUpDto: SignupDto, ip: string): Promise<string> {
         signUpDto.password = await argon2.hash(signUpDto.password);
         const username = await this.userHelper.suggestUsername(signUpDto.name);
-        const user = await this.userRepo.createUser({ ...signUpDto, username });
+        const existingUser = await this.userRepo.getUserByEmail(
+            signUpDto.email,
+        );
+        let user: User = null;
+        if (existingUser && existingUser.isDeleted === false)
+            throw new BadRequestException('Email already exists');
+        if (existingUser && existingUser.isDeleted)
+            user = await this.userRepo.recoverUser(existingUser.id, {
+                ...signUpDto,
+                username,
+            });
+        else user = await this.userRepo.createUser({ ...signUpDto, username });
         let isEmailSent = false;
         try {
             await this.sendTokenEmailVerification(user);

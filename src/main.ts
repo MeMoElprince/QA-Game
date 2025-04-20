@@ -41,23 +41,25 @@ async function bootstrap() {
         .setVersion('1.0')
         .build();
     const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api', app, document, {
-        swaggerOptions: {
-            authAction: {
-                default: {
-                    name: 'default',
-                    schema: {
-                        description: 'Default',
-                        type: 'http',
-                        in: 'header',
-                        scheme: 'bearer',
-                        bearerFormat: 'JWT',
+    if (configService.get('NODE_ENV') !== 'production') {
+        SwaggerModule.setup('api', app, document, {
+            swaggerOptions: {
+                authAction: {
+                    default: {
+                        name: 'default',
+                        schema: {
+                            description: 'Default',
+                            type: 'http',
+                            in: 'header',
+                            scheme: 'bearer',
+                            bearerFormat: 'JWT',
+                        },
+                        value: configService.get('TOKEN'),
                     },
-                    value: configService.get('TOKEN'),
                 },
             },
-        },
-    });
+        });
+    }
 
     const port = configService.get('PORT') || 4444;
 
