@@ -180,17 +180,37 @@ export class OrderService {
             where: {
                 id: orderId,
             },
+            include: {
+                Package: {
+                    select: {
+                        quantity: true,
+                    },
+                },
+            },
         });
         if (!order) throw new NotFoundException('Order not found');
         if (order.status === OrderStatus.COMPLETED)
             throw new BadRequestException('Order is already paid');
-        return await this.prismaService.order.update({
-            where: {
-                id: orderId,
-            },
-            data: {
-                status: OrderStatus.COMPLETED,
-            },
+        return await this.prismaService.$transaction(async (prisma) => {
+            const updatedOrder = await prisma.order.update({
+                where: {
+                    id: orderId,
+                },
+                data: {
+                    status: OrderStatus.COMPLETED,
+                },
+            });
+            await prisma.user.update({
+                where: {
+                    id: order.userId,
+                },
+                data: {
+                    ownedGameCount: {
+                        increment: order.Package.quantity,
+                    },
+                },
+            });
+            return updatedOrder;
         });
     }
 

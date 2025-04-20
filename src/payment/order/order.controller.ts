@@ -4,7 +4,6 @@ import {
     Get,
     HttpCode,
     HttpStatus,
-    Patch,
     Post,
     Query,
     Req,
@@ -18,7 +17,6 @@ import { OrderQueryDto } from './dto/order-query.dto';
 import { CheckoutPackageDto } from './dto/checkout-event.dto';
 import { RoleEnum, User } from '@prisma/client';
 import { Request } from 'express';
-import { ConfirmCheckoutOrderDto } from './dto/confirm-checkout-order.dto';
 import { EdfaWebhookDto } from '../edfa-payment/dto/edfa-webhook.dto';
 import { getCleanIp } from 'src/common/utils/cleanIp';
 
@@ -81,14 +79,14 @@ export class OrderController {
         return this.orderService.handleEdfaWebhook(edfaWebhookDto);
     }
 
-    @Patch('confirm-edfa-pay-order')
-    @UseGuards(AuthGuard('jwt'))
-    @ApiBearerAuth('default')
-    @ApiOperation({
-        summary: 'Confirm EdfaPay Event order',
-        description: 'Confirm EdfaPay order for package',
-    })
-    confirmEdfaPayOrder(@Body() confirmOrderDto: ConfirmCheckoutOrderDto) {
-        return this.orderService.confirmOrder(confirmOrderDto);
-    }
+    // @Patch('confirm-edfa-pay-order')
+    // @UseGuards(AuthGuard('jwt'))
+    // @ApiBearerAuth('default')
+    // @ApiOperation({
+    //     summary: 'Confirm EdfaPay Event order',
+    //     description: 'Confirm EdfaPay order for package',
+    // })
+    // confirmEdfaPayOrder(@Body() confirmOrderDto: ConfirmCheckoutOrderDto) {
+    //     return this.orderService.confirmOrder(confirmOrderDto);
+    // }
 }
