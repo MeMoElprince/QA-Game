@@ -41,7 +41,7 @@ async function bootstrap() {
         .setVersion('1.0')
         .build();
     const document = SwaggerModule.createDocument(app, config);
-    if (configService.get('NODE_ENV') !== 'production') {
+    // if (configService.get('NODE_ENV') !== 'production')
         SwaggerModule.setup('api', app, document, {
             swaggerOptions: {
                 authAction: {
@@ -59,7 +59,6 @@ async function bootstrap() {
                 },
             },
         });
-    }
 
     const port = configService.get('PORT') || 4444;
 
