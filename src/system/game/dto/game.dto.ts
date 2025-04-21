@@ -55,6 +55,8 @@ export class CreateGameDto implements CreateGameInterface {
     categoriesId: number[];
 }
 
+export class UserReplayGameDto extends OmitType(CreateGameDto, ['categoriesId']) {}
+
 export class AdminCreateGameDto extends CreateGameDto {
     @ApiProperty({
         description: 'Game user id',

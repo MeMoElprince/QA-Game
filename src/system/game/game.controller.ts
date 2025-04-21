@@ -18,6 +18,7 @@ import {
     MarkHelperAsUsedDto,
     UpdateGameDto,
     UserMarkHelperAsUsedDto,
+    UserReplayGameDto,
 } from './dto/game.dto';
 import { GetUser } from 'src/core/auth/decorator/get-user.decorator';
 import { AuthGuard } from '@nestjs/passport';
@@ -213,10 +214,14 @@ export class GameController {
     async replayGame(
         @Param('id') id: string,
         @GetUser('id') userId: number,
-        @Body() createGame: CreateGameDto,
+        @Body() userReplayGame: UserReplayGameDto,
     ) {
         console.log('HRERETERTERTET E@');
-        return await this.gameService.userReplayGame(+userId, +id, createGame);
+        return await this.gameService.userReplayGame(
+            +userId,
+            +id,
+            userReplayGame,
+        );
     }
 
     @Patch(':id/teams/:teamId/score')

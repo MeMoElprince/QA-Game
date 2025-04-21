@@ -10,6 +10,7 @@ import {
     GameQueryDto,
     MarkHelperAsUsedDto,
     UpdateGameDto,
+    UserReplayGameDto,
 } from './dto/game.dto';
 import { PrismaService } from 'src/common/modules/prisma/prisma.service';
 import {
@@ -205,7 +206,7 @@ export class GameService {
     async userReplayGame(
         userId: number,
         gameId: number,
-        createGameDto: CreateGameDto,
+        userReplayGame: UserReplayGameDto,
     ) {
         const existingGame = await this.prismaService.game.findUnique({
             where: {
@@ -227,9 +228,22 @@ export class GameService {
                     gameId,
                 },
             });
-            await prisma.gameCategory.deleteMany({
+            const gameCategories = await prisma.gameCategory.findMany({
                 where: {
                     gameId,
+                },
+                select: {
+                    id: true,
+                    categoryId: true,
+                    Category: {
+                        select: {
+                            id: true,
+                            name: true,
+                            Question: {
+                                take: 0,
+                            },
+                        },
+                    },
                 },
             });
             await prisma.team.deleteMany({
@@ -238,24 +252,9 @@ export class GameService {
                 },
             });
 
-            const categories = await prisma.category.findMany({
-                where: {
-                    id: {
-                        in: createGameDto.categoriesId,
-                    },
-                },
-                select: {
-                    name: true,
-                    id: true,
-                    Question: {
-                        take: 0,
-                    },
-                },
+            const categories = gameCategories.map((gameCat) => {
+                return gameCat.Category;
             });
-            if (categories.length !== createGameDto.categoriesId.length)
-                throw new BadRequestException(
-                    `There are ${createGameDto.categoriesId.length - categories.length} categories that do not exist`,
-                );
 
             for (const category of categories) {
                 const scores = [200, 400, 600];
@@ -285,10 +284,10 @@ export class GameService {
                         increment: 1,
                     },
                     status: GameStatusEnum.PLAYING,
-                    name: createGameDto.name,
+                    name: userReplayGame.name,
                     Team: {
                         createMany: {
-                            data: createGameDto.teams.map((team, idx) => {
+                            data: userReplayGame.teams.map((team, idx) => {
                                 return {
                                     name: team.name,
                                     order: idx,
@@ -298,30 +297,11 @@ export class GameService {
                             }),
                         },
                     },
-                    GameCategory: {
-                        createMany: {
-                            data: categories.map((category) => {
-                                return {
-                                    categoryId: category.id,
-                                };
-                            }),
-                        },
-                    },
                     User: {
                         connect: {
                             id: userId,
                         },
                     },
-                },
-            });
-
-            const gameCategories = await prisma.gameCategory.findMany({
-                where: {
-                    gameId: game.id,
-                },
-                select: {
-                    id: true,
-                    categoryId: true,
                 },
             });
 
