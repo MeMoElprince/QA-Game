@@ -41,6 +41,6 @@ volumes:
   postgres_data:
   uploads_data:
 
-networks:
+networks: 
   app-network:
     driver: bridge
