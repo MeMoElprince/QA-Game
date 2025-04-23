@@ -27,17 +27,11 @@ console.log(CLIENT_SIDE_PATH)
         ServeStaticModule.forRoot({
             rootPath: UPLOAD_PATH,
             serveRoot: '/static-uploads',
+              serveStaticOptions: {
+                fallthrough: false, // Allow client-side routing
+            }
         }),
         
-        // 2. Admin dashboard routes
-        ServeStaticModule.forRoot({
-            rootPath: ADMIN_SIDE_PATH,
-            serveRoot: '/dashboard',
-            serveStaticOptions: {
-                index: 'index.html',
-                fallthrough: false, // Strict 404 for missing admin files
-            },
-        }),
         
         // 3. Client-side app (catch-all)
         ServeStaticModule.forRoot({
