@@ -24,8 +24,8 @@ services:
     image: postgres:17.2   # ✅ Use valid version
     container_name: postgres-db-game
     environment:
-       POSTGRES_USER: Postgres
-       POSTGRES_PASSWORD: osbash
+       POSTGRES_USER: postgres
+       POSTGRES_PASSWORD: memo
        POSTGRES_DB: game
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d game"]
