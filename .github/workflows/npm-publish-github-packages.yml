@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: faker
+    runs-on: faker1
 
     strategy:
       matrix:
@@ -22,7 +22,7 @@ jobs:
           clean: false
 
       - name: Set environment variables
-        run: echo "HOME=/root" >> $GITHUB_ENV
+        run: echo "HOME=/home/osbash" >> $GITHUB_ENV
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
