@@ -35,7 +35,7 @@ jobs:
           touch .env
           echo "${{ secrets.RAKEZENV }}" > .env
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: sudo docker/setup-buildx-action@v3
 
       - name: Install dependencies via Docker Compose
         run: docker compose up --build -d
