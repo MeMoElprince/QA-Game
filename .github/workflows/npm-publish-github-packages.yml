@@ -36,4 +36,4 @@ jobs:
           echo "${{ secrets.RAKEZENV }}" > .env
    
       - name: Install dependencies via Docker Compose
-        run: docker compose up --build -d
+        run: sudo docker compose up --build -d
