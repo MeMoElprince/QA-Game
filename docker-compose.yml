@@ -15,7 +15,7 @@ services:
       db:
         condition: service_healthy
     volumes:
-      - uploads_data:/app/uploads
+      - /home/osbash/uploads:/app/uploads
     networks:
       - app-network
 

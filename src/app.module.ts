@@ -18,7 +18,7 @@ import { OtpModule } from './common/modules/otp/otp.module';
 import { CLIENT_SIDE_PATH, UPLOAD_PATH, ADMIN_SIDE_PATH } from './common/constants/path.constant';
 
 import { UserRepo } from './core/user/repo/user.repo';
-
+console.log(CLIENT_SIDE_PATH,UPLOAD_PATH)
 @Module({
   imports: [
     PaymentModule,
