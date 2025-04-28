@@ -28,18 +28,14 @@ import { UserRepo } from './core/user/repo/user.repo';
     ServeStaticModule.forRoot({
       rootPath: UPLOAD_PATH,
       serveRoot: '/static-uploads',
-      serveStaticOptions: {
-        fallthrough: false,
-      },
+     
     }),
 
     // 2. Client-Side App (Catch-All, excluding API and uploads)
     ServeStaticModule.forRoot({
       rootPath: CLIENT_SIDE_PATH,
-      exclude: ['/api*', '/dashboard*', '/static-uploads*'],
-      serveStaticOptions: {
-        fallthrough: true,
-      },
+      exclude: ['/api'],
+    
     }),
 
     PrismaModule,
