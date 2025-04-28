@@ -19,3 +19,8 @@ RUN npx prisma generate
 EXPOSE 4444
 # Command to start the application
 CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]
+# تأكد أن مجلد الرفع موجود
+RUN mkdir -p /app/uploads
+
+# إعطاء صلاحيات مناسبة (مثلاً القراءة والكتابة للجميع للتطوير)
+RUN chmod -R 777 /app/uploads

@@ -15,7 +15,7 @@ services:
       db:
         condition: service_healthy
     volumes:
-      - /home/osbash/uploads:/app/uploads
+      - uploads:/app/uploads
     networks:
       - app-network
 
@@ -38,7 +38,7 @@ services:
 
 volumes:
   postgres_data:
-  uploads_data:
+  uploads:
 
 networks: 
   app-network:
