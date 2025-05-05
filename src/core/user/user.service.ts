@@ -40,7 +40,7 @@ export class UserService {
                 isDeleted: false,
             },
         });
-        if (!user) throw new NotFoundException('User not found');
+        if (!user) throw new NotFoundException('هذا المستخدم غير موجود');
         const result = await this.prismaService.$transaction(async (prisma) => {
             const { picture: file, ...rest } = data;
             const userData = rest;
@@ -113,7 +113,7 @@ export class UserService {
                 },
             },
         });
-        if (!user) throw new NotFoundException('User not found');
+        if (!user) throw new NotFoundException('هذا المستخدم غير موجود');
         const result = await this.prismaService.$transaction(async (prisma) => {
             const { picture: file, ...rest } = data;
             const userData = rest;
@@ -179,7 +179,7 @@ export class UserService {
                 },
             },
         });
-        if (!user) throw new NotFoundException('User not found');
+        if (!user) throw new NotFoundException('هذا المستخدم غير موجود');
         const result = await this.prismaService.user.update({
             where: {
                 id: userId,
@@ -276,7 +276,7 @@ export class UserService {
             },
             select: userPrivateFields,
         });
-        if (!user) throw new NotFoundException('User not found');
+        if (!user) throw new NotFoundException('هذا المستخدم غير موجود');
         return user;
     }
 }

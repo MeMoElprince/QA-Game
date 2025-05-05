@@ -80,7 +80,7 @@ export class CategoryService {
                 Image: true,
             },
         });
-        if (!category) throw new NotFoundException('Category not found');
+        if (!category) throw new NotFoundException('هذه الفئه غير موجوده');
         return category;
     }
 
@@ -95,7 +95,7 @@ export class CategoryService {
                 Image: true,
             },
         });
-        if (!oldCategory) throw new NotFoundException('Category not found');
+        if (!oldCategory) throw new NotFoundException('هذه الفئه غير موجوده');
         const oldImage = oldCategory.Image;
         const pathToRemove = join(UPLOAD_PATH, oldImage.path);
         let isRemove = false;
@@ -153,7 +153,7 @@ export class CategoryService {
                 Image: true,
             },
         });
-        if (!category) throw new NotFoundException('Category not found');
+        if (!category) throw new NotFoundException('هذه الفئه غير موجوده');
         const pathToRemove = join(UPLOAD_PATH, category.Image.path);
         await this.prismaService.category.delete({
             where: {

@@ -52,7 +52,7 @@ export class UserRepo {
                 phoneNumber,
             },
         });
-        if (!user) throw new NotFoundException('User not found');
+        if (!user) throw new NotFoundException('هذا المستخدم غير موجود');
         return user;
     }
 
@@ -112,7 +112,7 @@ export class UserRepo {
                 id: userId,
             },
         });
-        if (!user) throw new NotFoundException('User not found');
+        if (!user) throw new NotFoundException('هذا المستخدم غير موجود');
         if (!user.isDeleted)
             throw new BadRequestException('User is not deleted');
         const updatedUser = await this.prismaService.user.update({

@@ -40,7 +40,7 @@ export class PromoService {
                 code,
             },
         });
-        if (!promo) throw new NotFoundException('Promo not found');
+        if (!promo) throw new NotFoundException('هذا كود الخصم غير موجود');
         return promo;
     }
 
@@ -50,7 +50,7 @@ export class PromoService {
                 code,
             },
         });
-        if (!promo) throw new NotFoundException('Promo not found');
+        if (!promo) throw new NotFoundException('هذا كود الخصم غير موجود');
         return await this.prismaService.promo.update({
             where: {
                 code,
@@ -65,7 +65,7 @@ export class PromoService {
                 code,
             },
         });
-        if (!promo) throw new NotFoundException('Promo not found');
+        if (!promo) throw new NotFoundException('هذا كود الخصم غير موجود');
         return await this.prismaService.promo.delete({
             where: {
                 code,
@@ -91,17 +91,19 @@ export class PromoService {
             },
         });
 
-        if (!promo) throw new NotFoundException('Promo not found');
+        if (!promo) throw new NotFoundException('هذا كود الخصم غير موجود');
         if (promo.endDate < new Date())
-            throw new ForbiddenException('Promo has expired');
+            throw new ForbiddenException('هذا الكود غير صالح بعد الان');
         if (promo.maxUsage <= promo.usedCount)
-            throw new ForbiddenException('Promo has reached its maximum usage');
+            throw new ForbiddenException(
+                'هذا الكود وصل للحد الاقصى من الاستخدامات',
+            );
         if (
             promo.PromoUser.length > 0 &&
             promo.PromoUser[0].usageCount >= promo.userLimit
         )
             throw new ForbiddenException(
-                'Promo has reached its maximum usage for this user',
+                'هذا الكود وصل للحد الاقصى من الاستخدامات لهذا المستخدم',
             );
 
         delete promo.usedCount;

@@ -4,7 +4,7 @@ import { FileTypeEnum } from '@prisma/client';
 export function getFileCategoryFromMimetype(mimetype: string | false): FileTypeEnum {
     const fileType = mimetype;
     if (!fileType) {
-        throw new BadRequestException('Invalid file type');
+        throw new BadRequestException('نوع الملف غير مدعوم');
     }
     let fileCategory: FileTypeEnum;
     if (fileType.startsWith('image/')) fileCategory = FileTypeEnum.IMAGE;
@@ -14,6 +14,6 @@ export function getFileCategoryFromMimetype(mimetype: string | false): FileTypeE
         fileType.startsWith('text/')
     )
         fileCategory = FileTypeEnum.DOCUMENT;
-    else throw new BadRequestException('Invalid file type');
+    else throw new BadRequestException('نوع الملف غير مدعوم');
     return fileCategory;
 }

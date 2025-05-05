@@ -62,7 +62,7 @@ export class GameService {
                 id: gameId,
             },
         });
-        if (!game) throw new BadRequestException('Game not found');
+        if (!game) throw new BadRequestException('هذه اللعبه غير موجوده');
         if (game.userId !== userId)
             throw new ForbiddenException(
                 'You are not allowed to update this game',
@@ -85,7 +85,7 @@ export class GameService {
                 id: userId,
             },
         });
-        if (!user) throw new BadRequestException('User not found');
+        if (!user) throw new BadRequestException('هذا المستخدم غير موجود');
         if (!user.ownedGameCount)
             throw new ConflictException(
                 "You don't have any games left, buy one",
@@ -216,7 +216,7 @@ export class GameService {
         });
         if (!existingGame)
             throw new BadRequestException(
-                'Game not found or not owned by user',
+                'هذه اللعبه غير موجوده or not owned by user',
             );
 
         // no need to check if he owns game
@@ -330,7 +330,7 @@ export class GameService {
                 id: userId,
             },
         });
-        if (!user) throw new BadRequestException('User not found');
+        if (!user) throw new BadRequestException('هذا المستخدم غير موجود');
         console.log({ user });
         const newGame = await this.prismaService.$transaction(
             async (prisma) => {
@@ -446,7 +446,7 @@ export class GameService {
                 id: userId,
             },
         });
-        if (!user) throw new BadRequestException('User not found');
+        if (!user) throw new BadRequestException('هذا المستخدم غير موجود');
         return this.prismaService.user.update({
             where: {
                 id: userId,
@@ -526,7 +526,7 @@ export class GameService {
                 id: gameId,
             },
         });
-        if (!game) throw new BadRequestException('Game not found');
+        if (!game) throw new BadRequestException('هذه اللعبه غير موجوده');
         if (game.userId !== userId)
             throw new ForbiddenException(
                 'You are not allowed to update this game',
@@ -595,7 +595,7 @@ export class GameService {
                 Team: true,
             },
         });
-        if (!game) throw new BadRequestException('Game not found');
+        if (!game) throw new BadRequestException('هذه اللعبه غير موجوده');
         if (game.userId !== userId)
             throw new ForbiddenException(
                 'You are not allowed to update this game',
@@ -603,7 +603,7 @@ export class GameService {
         const team = game.Team.find(
             (team) => team.id === markHelperAsUsedDto.teamId,
         );
-        if (!team) throw new BadRequestException('Team not found in game');
+        if (!team) throw new BadRequestException('الفريق غير موجود في اللعبه');
         console.log({ team, markHelperAsUsedDto, userId });
         return await this.prismaService.team.update({
             where: {
@@ -631,15 +631,13 @@ export class GameService {
                 Team: true,
             },
         });
-        if (!game) throw new BadRequestException('Game not found');
+        if (!game) throw new BadRequestException('هذه اللعبه غير موجوده');
         if (game.userId !== userId)
-            throw new ForbiddenException(
-                'You are not allowed to update this game',
-            );
+            throw new ForbiddenException('غير مسموح لك بتعديل هذه اللعبه');
         const team = game.Team.find((team) => team.id === teamId);
         if (!team) throw new BadRequestException('Team not found in game');
         if (team.usedLuckWheel)
-            throw new ConflictException('Luck wheel already used');
+            throw new ConflictException('عجله الحظ مستخدمه بالفعل لهذا الفريق');
         const luckWheelSize = Object.keys(LuckWheelEnum).length;
         const randomLuckWheelValue = Math.floor(Math.random() * luckWheelSize);
         console.log({ randomLuckWheelValue });

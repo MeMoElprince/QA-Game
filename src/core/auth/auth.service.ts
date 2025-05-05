@@ -49,7 +49,9 @@ export class AuthService {
         loginData: LoginDto,
     ): Promise<{ access_token: string; role: RoleEnum }> {
         if (!loginData.email && !loginData.phoneNumber)
-            throw new BadRequestException('Email or Phone number is required');
+            throw new BadRequestException(
+                'رقم الهاتف او البريد الالكتروني مطلوب',
+            );
         let user: User;
         if (loginData.email)
             user = await this.userRepo.getUserByEmail(loginData.email);
@@ -57,10 +59,16 @@ export class AuthService {
             user = await this.userRepo.getUserByPhoneNumber(
                 loginData.phoneNumber,
             );
-        else throw new BadRequestException('Email or Phone number is required');
+        else
+            throw new BadRequestException(
+                'رقم الهاتف او البريد الالكتروني مطلوب',
+            );
         if (!user)
-            throw new NotFoundException("email or password doesn't match");
-        if (user.isDeleted) throw new BadRequestException('User not found');
+            throw new NotFoundException(
+                'البريد الالكتروني وكلمه السر غير متطابقين',
+            );
+        if (user.isDeleted)
+            throw new BadRequestException('هذا المستخدم غير موجود');
         if (!user.verified) {
             let isEmailSent = false;
             // if last verification email sent less than 5 minutes
@@ -77,7 +85,7 @@ export class AuthService {
                 }
             }
             throw new ForbiddenException(
-                `Email is not verified${isEmailSent ? ', please check your email' : ''}`,
+                `هذا البريد غير مفعل${isEmailSent ? ', نرجو التحقق من رسائل بريدك الالكتروني' : ''}`,
             );
         }
         // if (user.isBlocked) throw new ForbiddenException('User is blocked');
@@ -147,7 +155,7 @@ export class AuthService {
             },
         });
         if (!user) {
-            throw new NotFoundException('User not found');
+            throw new NotFoundException('هذا المستخدم غير موجود');
         }
         const otp = this.otpService.generateOtp();
         const hashedOtp = await this.otpService.hashOtp(otp);
@@ -224,7 +232,7 @@ export class AuthService {
             },
         });
         if (!user) {
-            throw new NotFoundException('User not found');
+            throw new NotFoundException('هذا المستخدم غير موجود');
         }
         if (user.userCreationMethod !== UserCreationMethod.GOOGLE) {
             if (!oldPassword)
@@ -261,7 +269,7 @@ export class AuthService {
             },
         });
         if (!user) {
-            throw new NotFoundException('User not found');
+            throw new NotFoundException('هذا المستخدم غير موجود');
         }
         await this.prismaService.user.update({
             where: {
@@ -345,7 +353,7 @@ export class AuthService {
                 isDeleted: false,
             },
         });
-        if (!user) throw new NotFoundException('User not found');
+        if (!user) throw new NotFoundException('هذا المستخدم غير موجود');
         await this.prismaService.user.update({
             where: {
                 id: userId,
@@ -415,7 +423,7 @@ export class AuthService {
         });
         if (!payload) throw new ForbiddenException('Invalid token');
         const user = await this.userRepo.getUserById(payload.sub);
-        if (!user) throw new NotFoundException('User not found');
+        if (!user) throw new NotFoundException('هذا المستخدم غير موجود');
         return user;
     }
 

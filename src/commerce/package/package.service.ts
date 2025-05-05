@@ -36,7 +36,7 @@ export class PackageService {
                 id,
             },
         });
-        if (!pack) throw new NotFoundException('Package not found');
+        if (!pack) throw new NotFoundException('الباقه غير موجوده');
         return pack;
     }
 
@@ -46,7 +46,7 @@ export class PackageService {
                 id,
             },
         });
-        if (!oldPackage) throw new NotFoundException('Package not found');
+        if (!oldPackage) throw new NotFoundException('الباقه غير موجوده');
 
         const pack = await this.prismaService.$transaction(async (prisma) => {
             return await prisma.package.update({
@@ -65,7 +65,7 @@ export class PackageService {
                 id,
             },
         });
-        if (!pack) throw new NotFoundException('Package not found');
+        if (!pack) throw new NotFoundException('الباقه غير موجوده');
         await this.prismaService.package.delete({
             where: {
                 id,

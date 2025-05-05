@@ -35,19 +35,19 @@ export class OrderService {
         });
         if (!currentUser.phoneNumber)
             throw new BadRequestException(
-                'Please add your phone number to checkout the package',
+                'من فضلك قم بادخال رقم هاتفك لاتمام الدفع من صفحتك الشخصيه',
             );
         if (!currentUser.address)
             throw new BadRequestException(
-                'Please add your address to checkout the package',
+                'من فضلك قم بادخال عنوانك لاتمام الدفع من صفحتك الشخصيه',
             );
         if (!currentUser.city)
             throw new BadRequestException(
-                'Please add your city to checkout the package',
+                'من فضلك قم بادخال مدينتك لاتمام الدفع من صفحتك الشخصيه',
             );
         if (!currentUser.zipCode)
             throw new BadRequestException(
-                'Please add your zip code to checkout the package',
+                'من فضلك قم بادخال الرمز البريدي لاتمام الدفع من صفحتك الشخصيه',
             );
         const pack = await this.prismaService.package.findUnique({
             where: {
@@ -58,7 +58,7 @@ export class OrderService {
                 price: true,
             },
         });
-        if (!pack) throw new NotFoundException('Package not found');
+        if (!pack) throw new NotFoundException('الباقه غير موجوده');
         const totalPrice = pack.price;
         let finalPrice = totalPrice;
         let promoId = undefined;
@@ -125,7 +125,7 @@ export class OrderService {
                 id: true,
             },
         });
-        if (!pack) throw new NotFoundException('package not found or deleted');
+        if (!pack) throw new NotFoundException('الباقه غير موجوده او انتهت');
         const { ...rest } = createOrderDto;
         const order = await this.prismaService.order.create({
             data: {
@@ -167,7 +167,7 @@ export class OrderService {
                 id: Number(orderId),
             },
         });
-        if (!order) throw new NotFoundException('Order not found');
+        if (!order) throw new NotFoundException('هذا الطلب غير موجود');
         await this.confirmOrder({
             orderId: Number(orderId),
             transactionId,
@@ -188,7 +188,7 @@ export class OrderService {
                 },
             },
         });
-        if (!order) throw new NotFoundException('Order not found');
+        if (!order) throw new NotFoundException('هذا الطلب غير موجود');
         if (order.status === OrderStatus.COMPLETED)
             throw new BadRequestException('Order is already paid');
         return await this.prismaService.$transaction(async (prisma) => {
@@ -221,7 +221,7 @@ export class OrderService {
                 id: orderId,
             },
         });
-        if (!order) throw new NotFoundException('Order not found');
+        if (!order) throw new NotFoundException('هذا الطلب غير موجود');
         if (order.status === OrderStatus.CANCELLED)
             throw new BadRequestException('Order is already cancelled');
         return await this.prismaService.order.update({

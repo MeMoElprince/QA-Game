@@ -32,7 +32,7 @@ export class ContactService {
             },
         });
         if (!contact) {
-            throw new NotFoundException('Contact not found');
+            throw new NotFoundException('هذه الجهة غير موجودة');
         }
         return contact;
     }

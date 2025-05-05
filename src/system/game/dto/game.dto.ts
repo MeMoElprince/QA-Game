@@ -47,15 +47,17 @@ export class CreateGameDto implements CreateGameInterface {
     @IsNotEmpty()
     @Type(() => Number)
     @ArrayMinSize(6, {
-        message: 'You must select 6 categories for the game',
+        message: 'يجب عليك ادخال 6 تصنيفات',
     })
     @ArrayMaxSize(6, {
-        message: 'You must select 6 categories for the game',
+        message: 'يجب عليك ادخال 6 تصنيفات',
     })
     categoriesId: number[];
 }
 
-export class UserReplayGameDto extends OmitType(CreateGameDto, ['categoriesId']) {}
+export class UserReplayGameDto extends OmitType(CreateGameDto, [
+    'categoriesId',
+]) {}
 
 export class AdminCreateGameDto extends CreateGameDto {
     @ApiProperty({
