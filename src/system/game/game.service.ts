@@ -634,7 +634,7 @@ export class GameService {
         if (game.userId !== userId)
             throw new ForbiddenException('غير مسموح لك بتعديل هذه اللعبه');
         const team = game.Team.find((team) => team.id === teamId);
-        if (!team) throw new BadRequestException('Team not found in game');
+        if (!team) throw new BadRequestException('فريق غير موجود في اللعبه');
         if (team.usedLuckWheel)
             throw new ConflictException('عجله الحظ مستخدمه بالفعل لهذا الفريق');
         const luckWheelSize = Object.keys(LuckWheelEnum).length;
@@ -662,7 +662,7 @@ export class GameService {
             await this.prismaService.$transaction(async (prisma) => {
                 const opponentTeam = game.Team.find((t) => t.id !== team.id);
                 if (!opponentTeam)
-                    throw new BadRequestException('Opponent team not found');
+                    throw new BadRequestException('الخصم غير موجود');
                 await this.decreaseTeamScore(
                     gameId,
                     opponentTeam.id,
@@ -677,7 +677,7 @@ export class GameService {
             });
         } else {
             throw new BadRequestException(
-                'Luck wheel value not found, please try again',
+                'نتيجه عجله الحظ غير موجوده, يرجى المحاوله مره اخرى',
             );
         }
         console.log({ luckWheelValue });
@@ -720,9 +720,7 @@ export class GameService {
             },
         });
         if (!gameQuestion)
-            throw new BadRequestException(
-                'Game question not found or not in game',
-            );
+            throw new BadRequestException('سؤال اللعبه هذا غير موجود');
         return await prisma.team.update({
             where: {
                 id: teamId,
@@ -790,17 +788,13 @@ export class GameService {
         });
 
         if (!gameQuestion || gameQuestion.Game.id !== gameId)
-            throw new BadRequestException(
-                'Game or the question does not exist!',
-            );
+            throw new BadRequestException('اللعبه او السؤال غير موجودين!');
 
         if (gameQuestion.Game.userId !== userId)
-            throw new ForbiddenException(
-                'You are not allowed to access this game question',
-            );
+            throw new ForbiddenException('غير مسموح لك بتعديل هذه اللعبه');
 
         const question = gameQuestion.Question;
-        if (!question) throw new BadRequestException('question not found');
+        if (!question) throw new BadRequestException('السؤال غير موجود');
         return { data: [question] };
     }
 }

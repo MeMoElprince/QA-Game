@@ -11,7 +11,7 @@ export async function installPicture(
 ) {
     if (!path || !filename || !photoUrl)
         throw new BadRequestException(
-            'photoUrl and Path and filename are required',
+            'المسار و اسم الملف ورابط الصورة مطلوبون',
         );
     const photoResponse = await axios.get(photoUrl, {
         responseType: 'arraybuffer',

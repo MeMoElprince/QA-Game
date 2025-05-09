@@ -93,7 +93,7 @@ export class AuthService {
             user.password,
             loginData.password,
         );
-        if (!validPassword) throw new ForbiddenException('Invalid password');
+        if (!validPassword) throw new ForbiddenException('رقم سر غير صحيح');
         const access_token = await this.signToken(user.id, user.email);
         return { access_token, role: user.role };
     }
@@ -127,7 +127,7 @@ export class AuthService {
         );
         let user: User = null;
         if (existingUser && existingUser.isDeleted === false)
-            throw new BadRequestException('Email already exists');
+            throw new BadRequestException('هذا البريد الالكتروني موجود بالفعل');
         if (existingUser && existingUser.isDeleted)
             user = await this.userRepo.recoverUser(existingUser.id, {
                 ...signUpDto,
@@ -147,7 +147,7 @@ export class AuthService {
     async forgetPassword(email: string) {
         email = email.toLowerCase().trim();
         if (!isEmail(email)) {
-            throw new BadRequestException('Invalid email');
+            throw new BadRequestException('بريد الكتروني غير صالح');
         }
         const user = await this.prismaService.user.findUnique({
             where: {
@@ -177,32 +177,33 @@ export class AuthService {
     async checkOtp(checkOtpDto: CheckOtpDto) {
         const email = checkOtpDto.email.toLowerCase().trim();
         const otp = checkOtpDto.otp;
-        if (!isEmail(email)) throw new BadRequestException('Invalid email');
+        if (!isEmail(email))
+            throw new BadRequestException('بريد الكتروني غير صالح');
         const user = await this.prismaService.user.findUnique({
             where: {
                 email,
             },
         });
-        if (!user) throw new NotFoundException('Invalid OTP or expired');
-        if (!user.otp) throw new ForbiddenException('Invalid OTP or expired');
+        if (!user) throw new NotFoundException('كود غير صالح او منتهي');
+        if (!user.otp) throw new ForbiddenException('كود غير صالح او منتهي');
         const validOtp = await this.otpService.verifyOtp(otp, user.otp);
         if (user.dateToExpireOtp < new Date())
-            throw new ForbiddenException('Invalid OTP or expired');
-        if (!validOtp) throw new ForbiddenException('Invalid OTP or expired');
+            throw new ForbiddenException('كود غير صالح او منتهي');
+        if (!validOtp) throw new ForbiddenException('كود غير صالح او منتهي');
         return { message: 'Valid OTP' };
     }
 
     async resetPassword(resetPasswordDto: ResetPasswordDto) {
         const { password, ...rest } = resetPasswordDto;
         if (!isEmail(rest.email)) {
-            throw new BadRequestException('Invalid email');
+            throw new BadRequestException('بريد الكتروني غير صالح');
         }
         const user = await this.prismaService.user.findUnique({
             where: {
                 email: rest.email,
             },
         });
-        if (!user) throw new NotFoundException('Invalid OTP or expired');
+        if (!user) throw new NotFoundException('كود منتهي او غير صالح');
         await this.checkOtp(rest);
         const hashedPassword = await argon2.hash(password);
         await this.prismaService.user.update({
@@ -236,13 +237,13 @@ export class AuthService {
         }
         if (user.userCreationMethod !== UserCreationMethod.GOOGLE) {
             if (!oldPassword)
-                throw new BadRequestException('Old password is required');
+                throw new BadRequestException('الرقم السري القديم مطلوب');
             const validPassword = await argon2.verify(
                 user.password,
                 oldPassword,
             );
             if (!validPassword)
-                throw new ForbiddenException('Invalid password');
+                throw new ForbiddenException('كلمه سر غير صالحه');
         }
         const hashedPassword = await argon2.hash(newPassword);
         await this.prismaService.user.update({
@@ -253,7 +254,7 @@ export class AuthService {
                 password: hashedPassword,
             },
         });
-        return { message: 'Password updated successfully' };
+        return { message: 'تم تعديل كلمه السر بنجاح' };
     }
 
     async verifyEmail(token: string) {
@@ -283,7 +284,7 @@ export class AuthService {
     }
 
     async googleSignIn(googleLoginDto: GoogleLoginDto, ip: string) {
-        if (!ip) throw new InternalServerErrorException('IP is required');
+        if (!ip) throw new InternalServerErrorException('الرقم التعريفي مطلوب');
         const tokenInfo = await this.googleTokenInfo(
             googleLoginDto.accessToken,
         );
@@ -328,7 +329,7 @@ export class AuthService {
         if (!user.googleId) user.googleId = googleUserId;
 
         if (user.googleId !== googleUserId) {
-            throw new ForbiddenException('Invalid Google account');
+            throw new ForbiddenException('حساب جوجل غير صالح');
         }
         const updatedValues: Prisma.UserUpdateInput = {};
         if (!user.googleId) {
@@ -346,7 +347,8 @@ export class AuthService {
     }
 
     async deleteMyAccount(userId: number) {
-        if (!userId) throw new BadRequestException('User ID is required');
+        if (!userId)
+            throw new BadRequestException('الرقم التعريفي للمستخدم مطلوب');
         const user = await this.prismaService.user.findUnique({
             where: {
                 id: userId,
@@ -421,14 +423,15 @@ export class AuthService {
         const payload: { sub: number } = this.jwt.verify(token, {
             secret: this.config.get('JWT_SECRET'),
         });
-        if (!payload) throw new ForbiddenException('Invalid token');
+        if (!payload) throw new ForbiddenException('كود المستخدم غير صحيح');
         const user = await this.userRepo.getUserById(payload.sub);
         if (!user) throw new NotFoundException('هذا المستخدم غير موجود');
         return user;
     }
 
     async logout(userId: number, data: LogoutDto) {
-        if (!userId) throw new BadRequestException('User ID is required');
-        return { message: 'Logged out successfully' };
+        if (!userId)
+            throw new BadRequestException('الرقم التعريفي للمستخدم مطلوب');
+        return { message: 'تم تسجيل الدخول بنجاح' };
     }
 }

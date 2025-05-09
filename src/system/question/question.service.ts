@@ -189,7 +189,7 @@ export class QuestionService {
                 AnswerFile: true,
             },
         });
-        if (!question) throw new NotFoundException('Question not found');
+        if (!question) throw new NotFoundException('السؤال غير موجود');
         const pathToRemove = join(UPLOAD_PATH, question.QuestionFile.path);
         const pathToRemoveAnswer = join(UPLOAD_PATH, question.AnswerFile.path);
         await this.prismaService.question.delete({

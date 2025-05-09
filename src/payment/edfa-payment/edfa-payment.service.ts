@@ -39,8 +39,7 @@ export class EdfaPaymentService {
     }
 
     private genetrateSignatureStatus(edfaTransactionId: string) {
-        if (!edfaTransactionId)
-            throw new Error('EDFA transaction ID is required');
+        if (!edfaTransactionId) throw new Error('EDFA عمليه التحويل ID مطلوب');
         const md5 = edfaTransactionId + this.getPassword();
         const md5Hash = crypto
             .createHash('md5')
@@ -57,8 +56,7 @@ export class EdfaPaymentService {
         edfaTransactionId: string,
         orderId: string,
     ) {
-        if (!edfaTransactionId)
-            throw new Error('EDFA transaction ID is required');
+        if (!edfaTransactionId) throw new Error('EDFA عمليه التحويل ID مطلوب');
         if (!orderId) throw new Error('Order ID is required');
         const signature = this.genetrateSignatureStatus(edfaTransactionId);
         const response = await axios.post(`${this.baseUrl}/payment/status`, {
