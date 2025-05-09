@@ -216,7 +216,7 @@ export class GameService {
         });
         if (!existingGame)
             throw new BadRequestException(
-                'هذه اللعبه غير موجوده or not owned by user',
+                'هذه اللعبه غير موجوده او غير مملوكه من قبل المستخدم',
             );
 
         // no need to check if he owns game
@@ -469,8 +469,7 @@ export class GameService {
                 contains: name,
                 mode: 'insensitive',
             };
-        if (user.role !== RoleEnum.ADMIN) where.userId = user.id;
-
+        where.userId = user.id;
         const games = await this.prismaService.game.findMany({
             where,
             take,
