@@ -1,7 +1,9 @@
 import { BadRequestException } from '@nestjs/common';
 import { FileTypeEnum } from '@prisma/client';
 
-export function getFileCategoryFromMimetype(mimetype: string | false): FileTypeEnum {
+export function getFileCategoryFromMimetype(
+    mimetype: string | false,
+): FileTypeEnum {
     const fileType = mimetype;
     if (!fileType) {
         throw new BadRequestException('نوع الملف غير مدعوم');
@@ -14,6 +16,7 @@ export function getFileCategoryFromMimetype(mimetype: string | false): FileTypeE
         fileType.startsWith('text/')
     )
         fileCategory = FileTypeEnum.DOCUMENT;
+    else if (fileType.startsWith('audio/')) fileCategory = FileTypeEnum.AUDIO;
     else throw new BadRequestException('نوع الملف غير مدعوم');
     return fileCategory;
 }
