@@ -18,6 +18,7 @@ import { OtpModule } from './common/modules/otp/otp.module';
 import { CLIENT_SIDE_PATH, UPLOAD_PATH, ADMIN_SIDE_PATH } from './common/constants/path.constant';
 
 import { UserRepo } from './core/user/repo/user.repo';
+import { FileModule } from './file/file.module';
 console.log(CLIENT_SIDE_PATH,UPLOAD_PATH)
 @Module({
   imports: [
@@ -46,6 +47,7 @@ console.log(CLIENT_SIDE_PATH,UPLOAD_PATH)
     SystemModule,
     CommerceModule,
     SupportModule,
+    FileModule,
   ],
   controllers: [],
   providers: [UserRepo],

@@ -84,8 +84,8 @@ model Question {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  QuestionFile File?          @relation(fields: [questionFileId], references: [id], onDelete: Cascade, name: "QuestionFile")
-  AnswerFile   File?          @relation(fields: [answerFileId], references: [id], onDelete: Cascade, name: "AnswerFile")
+  QuestionFile File?          @relation(fields: [questionFileId], references: [id], onDelete: SetNull, name: "QuestionFile")
+  AnswerFile   File?          @relation(fields: [answerFileId], references: [id], onDelete: SetNull, name: "AnswerFile")
   Category     Category       @relation(fields: [categoryId], references: [id])
   GameQuestion GameQuestion[]
 }
