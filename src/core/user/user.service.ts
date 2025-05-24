@@ -113,7 +113,10 @@ export class UserService {
                 },
             },
         });
-        if (!user) throw new NotFoundException('هذا المستخدم غير موجود');
+        if (!user)
+            throw new NotFoundException(
+                'هذا  المستخدم غير موجود او لا يمكنك تحديثه',
+            );
         const result = await this.prismaService.$transaction(async (prisma) => {
             const { picture: file, ...rest } = data;
             const userData = rest;

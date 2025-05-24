@@ -125,8 +125,12 @@ export class UserController {
         @Param('id') id: number,
         @Body() updateUserDto: UpdateUserDto,
         @UploadedFile() file: Express.Multer.File,
+        @GetUser('id') userId: number,
     ) {
         updateUserDto.picture = file;
+        if (id === userId)
+            return await this.userService.updateMyData(+id, updateUserDto);
+
         return await this.userService.update(+id, updateUserDto);
     }
 
