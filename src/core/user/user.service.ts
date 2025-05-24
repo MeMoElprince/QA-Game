@@ -107,7 +107,6 @@ export class UserService {
         const user = await this.prismaService.user.findUnique({
             where: {
                 id,
-                isDeleted: false,
                 role: {
                     notIn: ['ADMIN'],
                 },
