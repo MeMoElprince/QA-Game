@@ -247,7 +247,7 @@ export class UserService {
                 mode: 'insensitive',
             };
         if (phoneNumber)
-            where.name = {
+            where.phoneNumber = {
                 contains: phoneNumber,
                 mode: 'insensitive',
             };
